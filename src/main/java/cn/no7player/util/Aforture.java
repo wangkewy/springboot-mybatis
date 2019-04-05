@@ -1,50 +1,24 @@
-package cn.no7player.controller;
+package cn.no7player.util;
 
-import cn.no7player.util.HttpUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Controller
-public class HelloController {
-
-    @RequestMapping("/hello")
-    public String greeting(@RequestParam(value="name", required=false, defaultValue="World") String name, Model model) {
-        model.addAttribute("name", name);
-        return "hello";
-    }
-
-    @RequestMapping("/bazijp")
-    public String bazijp(Model model){
-        return "bazijp";
-    }
-
-    @RequestMapping("/bazijpname")
-    public String bazijpName(Model model){
-        model.addAttribute("name", "name");
-
-        return "bazijpname";
-    }
-
-    @RequestMapping("/bazijpresult")
-    public String bazijpResult(Model model){
-        model.addAttribute("name", nameCesuan());
-
-        return "bazijpresult";
-    }
+/**
+ * 艾福特恩（iFORTUNE）_命理玄学知识图谱_五路财神灵签
+ * https://market.aliyun.com/products/57126001/cmapi032632.html?spm=5176.2020520132.101.2.758c7218U2Nviy#sku=yuncode2663200001
+ *
+ * */
+public class Aforture {
 
     public String nameCesuan(){
         String result = "";
         String host = "http://wlcslq.market.alicloudapi.com";
         String path = "/ai_metaphysics/wu_lu_cai_shen_lin_qian/elite";
         String method = "GET";
-        String appcode = "05c74640d64c4894a661c3016108e5b3";
+        String appcode = "你自己的AppCode";
         Map<String, String> headers = new HashMap<String, String>();
         //最后在header中的格式(中间是英文空格)为Authorization:APPCODE 83359fd73fe94948385f570e3c139105
         headers.put("Authorization", "APPCODE " + appcode);
@@ -69,7 +43,7 @@ public class HelloController {
             System.out.println(response.toString());
             //获取response的body
             result = EntityUtils.toString(response.getEntity());
-            System.out.println(result);
+            System.out.println(EntityUtils.toString(response.getEntity()));
         } catch (Exception e) {
             e.printStackTrace();
         }
