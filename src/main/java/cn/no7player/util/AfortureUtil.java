@@ -11,7 +11,7 @@ import java.util.Map;
  * https://market.aliyun.com/products/57126001/cmapi032632.html?spm=5176.2020520132.101.2.758c7218U2Nviy#sku=yuncode2663200001
  *
  * */
-public class Aforture {
+public class AfortureUtil {
 
     public String nameCesuan(){
         String result = "";

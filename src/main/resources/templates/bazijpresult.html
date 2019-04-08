@@ -1,10 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
 <head>
     <meta charset="UTF-8"/>
     <title>2019年运势详批</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta content="yes" name="apple-mobile-web-app-capable"/>
+    <meta content="black" name="apple-mobile-web-app-status-bar-style"/>
+    <meta content="telephone=no" name="format-detection"/>
+    <link rel="shortcut icon" href="/sm/ffsm/statics/ffsm/favicon.ico"/>
+    <link href="/statics/ffsm/bazimf/10010/wap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/statics/ffsm/bazimf/10010/index.css" rel="stylesheet" type="text/css"/>
+    <link href="/statics/ffsm/bazimf/10010/style.min.css" rel="stylesheet" type="text/css"/>
+    <script src="//apps.bdimg.com/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="/statics/ffsm/public/js/require/require.min.js?tm=123" data-main="/statics/ffsm/public/js/common.min.js?tm=123?v=0817"></script>
 </head>
 <body>
-    {$name}
+    <div class="container pay">
+        <div class="wrap">
+            <div class="pay-banner">
+                <img src="/statics/ffsm/bazimf/10010/images/pay-banner.png" alt=""/>
+            </div>
+            <div class="look-info">
+                <div class="name-box">
+                    <div class="item">
+                        <p>姓名：<label th:text="${afortune.name}"></label><span style="margin-left:20px">性别：<label th:text="${afortune.GENDER}"></label></span></p>
+                        <p>公历生日：<label th:text="${afortune.BIRTH}"></label></p>
+                        <p>农历生日：<label th:text="${afortune.NONGLI_YEAR}"></label>&nbsp;&nbsp;
+                                   <label th:text="${afortune.NONGLI_MONTH}"></label>&nbsp;&nbsp;
+                                   <label th:text="${afortune.NONGLI_DAY}"></label>&nbsp;&nbsp;
+                                   <label th:text="${afortune.NONGLI_HOUR}"></label>
+                        </p>
+                        <!--<p>公历生日：2019年4月4日1时</p>-->
+                        <!--<p>农历生日：二零一九年二月廿九日 01:00-01:59丑时</p>-->
+                        <p>属相：<label th:text="${afortune.ANIMAL}"></label></p>
+                        <p>性别：<label th:text="${afortune.GENDER}"></label></p>
+                        <p>签类型：<label th:text="${afortune.SIGN_TYPE}"></label></p>
+                        <p>签诗：<label th:text="${afortune.SIGN_POEM}"></label></p>
+                        <p>签诗注解：<label th:text="${afortune.SIGN_INTRO}"></label></p>
+                        <p>事业注解：<label th:text="${afortune.SIGN_ENTITY_SIGN_CAREER}"></label></p>
+                        <p>家庭注解：<label th:text="${afortune.SIGN_ENTITY_SIGN_FAMILY}"></label></p>
+                        <p>感情注解：<label th:text="${afortune.SIGN_ENTITY_SIGN_EMOTION}"></label></p>
+                        <p>学业注解：<label th:text="${afortune.SIGN_ENTITY_SIGN_ACADEMIC}"></label></p>
+                        <p>投资注解：<label th:text="${afortune.SIGN_ENTITY_SIGN_INVEST}"></label></p>
+                        <p>健康注解：<label th:text="${afortune.SIGN_ENTITY_SIGN_HEALTH}"></label></p>
+                        <p>转换注解：<label th:text="${afortune.SIGN_ENTITY_SIGN_SWITCH}"></label></p>
+                        <p>官司注解：<label th:text="${afortune.SIGN_ENTITY_SIGN_LAWSUIT}"></label></p>
+                        <p>失物注解：<label th:text="${afortune.SIGN_ENTITY_SIGN_LOST}"></label></p>
+                        <p>出行注解：<label th:text="${afortune.SIGN_ENTITY_SIGN_TRAVEL}"></label></p>
+                        <p>求子注解：<label th:text="${afortune.SIGN_ENTITY_SIGN_CHILD}"></label></p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-box">
+                <p>如有疑问，请联系客服。客服QQ：2944710995</p>
+                <p>客服在线时间：10:00-18:00(周一至周五) </p>
+                <img src="/statics/ffsm/bazimf/10010/images/footer-img.png" alt=""/>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
