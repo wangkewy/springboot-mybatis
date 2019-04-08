@@ -1,6 +1,5 @@
-
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
 <head>
     <meta charset="UTF-8"/>
     <title>2019年运势详批</title>
@@ -66,9 +65,12 @@
         <div class="look-info">
             <div class="name-box">
                 <div class="item">
-                    <p>姓名：wangke <span style="margin-left:20px">性别：男</span></p>
-                    <p>公历生日：2019年4月4日1时</p>
-                    <p>农历生日：二零一九年二月廿九日 01:00-01:59丑时</p>
+                    <p>姓名：<label th:text="${username}"></label> <span style="margin-left:20px">性别：<label th:text="${gender}"></label></span></p>
+                    <p>公历生日：<label th:text="${birthday}"></label></p>
+                    <!--<p>农历生日：<label th:text="${afortune.NONGLI_YEAR}"></label>&nbsp;&nbsp;-->
+                        <!--<label th:text="${afortune.NONGLI_MONTH}"></label>&nbsp;&nbsp;-->
+                        <!--<label th:text="${afortune.NONGLI_DAY}"></label>&nbsp;&nbsp;-->
+                        <!--<label th:text="${afortune.NONGLI_HOUR}"></label></p>-->
                 </div>
             </div>
             <img src="/statics/ffsm/bazimf/10010/images/info-img.png?tm=555" alt=""/>
@@ -104,7 +106,7 @@
             </div>
         </div>
         <div class="footer-box">
-            <p>如有疑问，请联系客服。客服QQ：2944710995</p>
+            <p>如有疑问，请联系客服。客服QQ：</p>
             <p>客服在线时间：10:00-18:00(周一至周五) </p>
             <img src="/statics/ffsm/bazimf/10010/images/footer-img.png" alt=""/>
         </div>

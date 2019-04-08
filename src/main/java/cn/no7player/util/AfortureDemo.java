@@ -9,9 +9,8 @@ import java.util.Map;
 /**
  * 艾福特恩（iFORTUNE）_命理玄学知识图谱_五路财神灵签
  * https://market.aliyun.com/products/57126001/cmapi032632.html?spm=5176.2020520132.101.2.758c7218U2Nviy#sku=yuncode2663200001
- *
  * */
-public class AfortureUtil {
+public class AfortureDemo {
 
     public String nameCesuan(){
         String result = "";
