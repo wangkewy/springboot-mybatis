@@ -3,12 +3,14 @@ package cn.no7player.controller;
 import cn.no7player.model.Afortune;
 import cn.no7player.service.AfortuneService;
 import cn.no7player.util.HttpUtils;
+import cn.no7player.vo.UserForm;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +23,15 @@ import java.util.UUID;
 public class BazijpController {
     private Logger logger = Logger.getLogger(BazijpController.class);
 
+    @Value("${i_host}")
+    private String host;
+
+    @Value("${i_path}")
+    private String path;
+
+    @Value("${i_appcode}")
+    private String appcode;
+
     @Autowired
     private AfortuneService afortuneService;
 
@@ -30,22 +41,27 @@ public class BazijpController {
     }
 
     @RequestMapping("/bazijpname")
-    public String bazijpName(String username, String gender, String birthday, Model model){
-        model.addAttribute("username", username);
-        model.addAttribute("gender", gender);
-        model.addAttribute("birthday", birthday);
-
+    public String bazijpName(UserForm userForm, Model model){
+        if(userForm.getUsername() != null){
+            model.addAttribute("username", userForm.getUsername());
+            model.addAttribute("gender", (userForm.getGender().equals("1") ? "男" : "女"));
+            model.addAttribute("birthday", userForm.getBirthday());
+            model.addAttribute("lDate", userForm.getlDate());
+        }
         return "bazijpname";
     }
 
     @RequestMapping("/bazijpresult")
-    public String bazijpResult(Model model){
-        String name = "张无忌";
-        String birth = "20180808";
+    public String bazijpResult(String birth, String firstName, String gender, String lastName, Model model){
+        birth = "20180808080808";
+        firstName = "张";
+        gender = "男";
+        lastName = "无忌";
+        String name = firstName + lastName;
         logger.info("name : " + name + " ; birth : " + birth);
         Afortune afortune = afortuneService.find(name, birth);
         if(afortune == null){
-            String result = ifortureCesuan("","","","");
+            String result = ifortureCesuan(birth, firstName, gender, lastName);
             if(result.length() > 0){
                 afortune = parseToAfortune(result);
                 afortuneService.save(afortune);
@@ -60,24 +76,35 @@ public class BazijpController {
         }
     }
 
+    @RequestMapping("/bazijporderresult")
+    public String bazijpOrderResult(String orderId, Model model){
+        Afortune afortune = afortuneService.findByOrderId(orderId);
+        if(afortune != null){
+            model.addAttribute("afortune", afortune);
+            return "bazijpresult";
+        } else {
+            return "bazijp404";
+        }
+    }
+
     /**
      * 艾福特恩（iFORTUNE）_命理玄学知识图谱_五路财神灵签
      * */
     private String ifortureCesuan(String birth, String firstName, String gender, String lastName){
         String result = "";
-        String host = "http://wlcslq.market.alicloudapi.com";
-        String path = "/ai_metaphysics/wu_lu_cai_shen_lin_qian/elite";
+//        String host = "http://wlcslq.market.alicloudapi.com";
+//        String path = "/ai_metaphysics/wu_lu_cai_shen_lin_qian/elite";
         String method = "GET";
-        String appcode = "05c74640d64c4894a661c3016108e5b3";
+//        String appcode = "05c74640d64c4894a661c3016108e5b3";
         Map<String, String> headers = new HashMap<String, String>();
         //最后在header中的格式(中间是英文空格)为Authorization:APPCODE 83359fd73fe94948385f570e3c139105
         headers.put("Authorization", "APPCODE " + appcode);
         headers.put("x-ca-nonce", UUID.randomUUID().toString());
         Map<String, String> querys = new HashMap<String, String>();
-        querys.put("BIRTH", "20180808080808");
-        querys.put("FIRST_NAME", "张");
-        querys.put("GENDER", "男");
-        querys.put("LAST_NAME", "无忌");
+        querys.put("BIRTH", birth);
+        querys.put("FIRST_NAME", firstName);
+        querys.put("GENDER", gender);
+        querys.put("LAST_NAME", lastName);
 
         try {
             HttpResponse response = HttpUtils.doGet(host, path, method, headers, querys);

@@ -16,8 +16,20 @@ public class AfortuneService {
         afortuneMapper.insert(afortune);
     }
 
+    /**
+     * 根据姓名和生日查询签
+     * */
     public Afortune find(String name, String birth){
         Afortune afortune = afortuneMapper.find(name, birth);
         return afortune;
     }
+
+    /**
+     * 根据订单查询签
+     * */
+    public Afortune findByOrderId(String orderId){
+        Afortune afortune = afortuneMapper.findByOrderId(orderId);
+        return afortune;
+    }
+
 }

@@ -3,13 +3,13 @@ package cn.no7player.controller;
 import cn.no7player.util.*;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +31,18 @@ import java.util.Random;
 public class PayController {
     private Logger logger = Logger.getLogger(PayController.class);
 
+    @Value("${w_APPID}")
+    private String APPID;
+
+    @Value("${w_MERID}")
+    private String MERID;
+
+    @Value("${w_notify_url}")
+    private String notify_url;
+
+    @Value("${w_createOrderURL}")
+    private String createOrderURL;
+
     @RequestMapping(value = "/go")
     public String go(String oid, String type, Model model, RedirectAttributes redirectAttributes){
         redirectAttributes.addAttribute("subject", "paySubject");
@@ -43,17 +55,11 @@ public class PayController {
     @RequestMapping(value = "/weixinPayWap" ,produces = { "application/json;charset=UTF-8" })
     public Map<String, String> weixinPayWap(HttpServletRequest request, HttpServletResponse response, ModelMap model) {
         Map<String, String> payMap = new HashMap<String, String>();
-
-        String APPID = "wx7e05e0f9fafab411"; // 我的APPID，关联的小程序
-        String MERID = "1316014901"; // 我的商户号
-//        String SIGNKEY = "你的商户密钥"; // 我的注释
-        String spbill_create_ip = getIpAddr(request);//生产
+        String spbill_create_ip = getIP(request);//生产
         System.out.println("spbill_create_ip="+spbill_create_ip);
-//        String spbill_create_ip = "192.168.222.1";//测试地址，也就是本地真是ip，用于本地测试用
         String scene_info = "{\"h5_info\": {\"type\":\"Wap\",\"wap_url\": \"woniu8.com\",\"wap_name\": \"信息认证\"}}";//我这里是网页入口，app入口参考文档的安卓和ios写法
         String tradeType = "MWEB";//H5支付标记
         String MD5 = "MD5";//虽然官方文档不是必须参数，但是不送有时候会验签失败
-        JSONObject result = new JSONObject();
         String subject = request.getParameter("subject");//前端上送的支付主题
         String total_amount = request.getParameter("totalAmount");//前端上送的支付金额
         String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
@@ -64,7 +70,7 @@ public class PayController {
         //随机数
         String nonce_str= MD5Utils.getMessageDigest(String.valueOf(new Random().nextInt(10000)).getBytes());
         //回调地址
-        String notify_url = "http://www.woniu8.com/pay/notify";
+//        String notify_url = "xm.woniu8.com/pay/notify";
         //签名数据
         StringBuilder sb = new StringBuilder();
         sb.append("appid="+APPID);
@@ -100,7 +106,7 @@ public class PayController {
                 "<spbill_create_ip>"+spbill_create_ip+"</spbill_create_ip>"+
                 "</xml>";
 
-        String createOrderURL = "https://api.mch.weixin.qq.com/pay/unifiedorder";//微信统一下单接口
+//        String createOrderURL = "https://api.mch.weixin.qq.com/pay/unifiedorder";//微信统一下单接口
         String mweb_url = "";
         Map map = new HashMap();
         try {
@@ -113,31 +119,27 @@ public class PayController {
                 System.out.println("mweb_url="+mweb_url);
             }else{
                 System.out.println("统一支付接口获取预支付订单出错");
-                result.put("msg", "支付错误");
                 payMap.put("msg", "支付错误");
                 return payMap;
             }
         } catch (Exception e) {
             System.out.println("统一支付接口获取预支付订单出错");
-            result.put("msg", "支付错误");
             payMap.put("msg", "支付错误");
             return payMap;
         }
 
         //支付完返回浏览器跳转的地址，如跳到查看订单页面
-        String redirect_url = "http://www.woniu8.com/order/index";
-        try{
-            String redirect_urlEncode =  URLEncoder.encode(redirect_url,"utf-8");//对上面地址urlencode
-            mweb_url = mweb_url + "&redirect_url=" + redirect_urlEncode;//拼接返回地址
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-        result.put("mwebUrl",mweb_url);
+//        String redirect_url = "http://xm.woniu8.com/order/index";
+//        try{
+//            String redirect_urlEncode =  URLEncoder.encode(redirect_url,"utf-8");//对上面地址urlencode
+//            mweb_url = mweb_url + "&redirect_url=" + redirect_urlEncode;//拼接返回地址
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//        result.put("mwebUrl",mweb_url);
 
         //添加微信支付记录日志等操作
 
-        result.put("msg", "success");
 
         payMap.put("msg", "success");
         payMap.put("mweb_url", mweb_url);
@@ -146,36 +148,57 @@ public class PayController {
     }
 
     /**
-     * 获取用户实际ip
+     * 获取用户实际ip,有nginx代理的情况
      * @param request
      * @return
      */
-    public String getIpAddr(HttpServletRequest request){
+    public String getIP(HttpServletRequest request) {
         String ipAddress = request.getHeader("x-forwarded-for");
-        if(ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {
-            ipAddress = request.getHeader("Proxy-Client-IP");
+        if (ipAddress != null) {
+            StringBuffer buf = new StringBuffer();
+            for (int i = 0; i < ipAddress.length(); i++) {
+                char ch = ipAddress.charAt(i);
+                if (ch != ' ')
+                    buf.append(ch);
+            }
+            ipAddress = buf.toString();
+            System.out.println("getIp x-forwarded-for");
         }
-        if(ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {
-            ipAddress = request.getHeader("WL-Proxy-Client-IP");
-        }
-        if(ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {
-            ipAddress = request.getRemoteAddr();
-            if(ipAddress.equals("127.0.0.1") || ipAddress.equals("0:0:0:0:0:0:0:1")){
-                //根据网卡取本机配置的IP
-                InetAddress inet=null;
-                try {
-                    inet = InetAddress.getLocalHost();
-                } catch (UnknownHostException e) {
-                    e.printStackTrace();
+
+        if (ipAddress != null) {
+            if (ipAddress.length() > 0 && !ipAddress.startsWith("10.")) {
+                int tmpIndex = ipAddress.indexOf(",");
+                if (tmpIndex > 0) {
+                    ipAddress = ipAddress.substring(0, tmpIndex);
                 }
-                ipAddress= inet.getHostAddress();
+                System.out.println("getIp 10.");
+                return ipAddress;
             }
         }
-        //对于通过多个代理的情况，第一个IP为客户端真实IP,多个IP按照','分割
-        if(ipAddress!=null && ipAddress.length()>15){ //"***.***.***.***".length() = 15
-            if(ipAddress.indexOf(",")>0){
-                ipAddress = ipAddress.substring(0,ipAddress.indexOf(","));
+
+        ipAddress = request.getHeader("HTTP_X_FORWARDED_FOR");
+        if (ipAddress != null) {
+            int index = ipAddress.indexOf(',');
+            if (index > 0) {
+                ipAddress = ipAddress.substring(0, index);
             }
+            System.out.println("getIp HTTP_X_FORWARDED_FOR");
+            return ipAddress;
+        }
+
+        /*
+         * ipAddress = request.getHeader("CLIENT_IP"); if (ipAddress == null) {
+         * return request.getRemoteAddr(); } else { return ipAddress; }
+         */
+        ipAddress = request.getHeader("X-Real-IP");
+        System.out.println("getIp X-Real-IP");
+        if (ipAddress == null) {
+            ipAddress = request.getRemoteAddr();
+            System.out.println("getIp X-Real-IP");
+        }
+        int index = ipAddress.indexOf(',');
+        if (index > 0) {
+            ipAddress = ipAddress.substring(0, index);
         }
         return ipAddress;
     }
@@ -188,7 +211,7 @@ public class PayController {
         BufferedReader reader = request.getReader();
         String line = "";
         Map map = new HashMap();
-        String xml = "<xml><return_code><![CDATA[FAIL]]></xml>";;
+        String xml = "<xml><return_code><![CDATA[FAIL]]></xml>";
         JSONObject dataInfo = new JSONObject();
         StringBuffer inputString = new StringBuffer();
         while ((line = reader.readLine()) != null) {

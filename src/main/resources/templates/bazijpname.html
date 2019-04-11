@@ -69,10 +69,7 @@
                 <div class="item">
                     <p>姓名：<label th:text="${username}"></label> <span style="margin-left:20px">性别：<label th:text="${gender}"></label></span></p>
                     <p>公历生日：<label th:text="${birthday}"></label></p>
-                    <!--<p>农历生日：<label th:text="${afortune.NONGLI_YEAR}"></label>&nbsp;&nbsp;-->
-                        <!--<label th:text="${afortune.NONGLI_MONTH}"></label>&nbsp;&nbsp;-->
-                        <!--<label th:text="${afortune.NONGLI_DAY}"></label>&nbsp;&nbsp;-->
-                        <!--<label th:text="${afortune.NONGLI_HOUR}"></label></p>-->
+                    <p>农历生日：<label th:text="${lDate}"></label></p>
                 </div>
             </div>
             <img src="/statics/ffsm/bazimf/10010/images/info-img.png?tm=555" alt=""/>
@@ -180,7 +177,6 @@
     function payWeixin(){
         var url = "/pay/go";
         $.get(url, function(result){
-            alert("msg: " + result.msg + " ; mweb_url: " + result.mweb_url);
             if(result.msg == 'success'){
                 location.href = result.mweb_url;
             } else {

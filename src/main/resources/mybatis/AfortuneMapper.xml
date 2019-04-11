@@ -35,6 +35,7 @@
     <result column="SIGN_ENTITY_SIGN_LOST" property="SIGN_ENTITY_SIGN_LOST" jdbcType="VARCHAR" />
     <result column="SIGN_ENTITY_SIGN_TRAVEL" property="SIGN_ENTITY_SIGN_TRAVEL" jdbcType="VARCHAR" />
     <result column="SIGN_ENTITY_SIGN_CHILD" property="SIGN_ENTITY_SIGN_CHILD" jdbcType="VARCHAR" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="create_time" />
   </resultMap>
   <sql id="Base_Column_List" >
     <!--
@@ -46,7 +47,7 @@
     ANIMAL, GENDER, SIGN_NAME, SIGN_ID, SIGN_TYPE, SIGN_TITLE, SIGN_POEM, SIGN_INTRO, 
     SIGN_ENTITY_SIGN_CAREER, SIGN_ENTITY_SIGN_FAMILY, SIGN_ENTITY_SIGN_EMOTION, SIGN_ENTITY_SIGN_ACADEMIC, 
     SIGN_ENTITY_SIGN_INVEST, SIGN_ENTITY_SIGN_HEALTH, SIGN_ENTITY_SIGN_SWITCH, SIGN_ENTITY_SIGN_LAWSUIT, 
-    SIGN_ENTITY_SIGN_LOST, SIGN_ENTITY_SIGN_TRAVEL, SIGN_ENTITY_SIGN_CHILD
+    SIGN_ENTITY_SIGN_LOST, SIGN_ENTITY_SIGN_TRAVEL, SIGN_ENTITY_SIGN_CHILD, create_time
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     <!--
@@ -84,8 +85,9 @@
       SIGN_ENTITY_SIGN_ACADEMIC, SIGN_ENTITY_SIGN_INVEST, 
       SIGN_ENTITY_SIGN_HEALTH, SIGN_ENTITY_SIGN_SWITCH, 
       SIGN_ENTITY_SIGN_LAWSUIT, SIGN_ENTITY_SIGN_LOST, 
-      SIGN_ENTITY_SIGN_TRAVEL, SIGN_ENTITY_SIGN_CHILD
-      )
+      SIGN_ENTITY_SIGN_TRAVEL, SIGN_ENTITY_SIGN_CHILD,
+      create_time
+    )
     values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{FIRT_NAME,jdbcType=VARCHAR}, 
       #{LAST_NAME,jdbcType=VARCHAR}, #{BIRTH,jdbcType=VARCHAR}, #{NONGLI_YEAR,jdbcType=VARCHAR}, 
       #{NONGLI_MONTH,jdbcType=VARCHAR}, #{NONGLI_DAY,jdbcType=VARCHAR}, #{NONGLI_HOUR,jdbcType=VARCHAR}, 
@@ -96,8 +98,8 @@
       #{SIGN_ENTITY_SIGN_ACADEMIC,jdbcType=VARCHAR}, #{SIGN_ENTITY_SIGN_INVEST,jdbcType=VARCHAR}, 
       #{SIGN_ENTITY_SIGN_HEALTH,jdbcType=VARCHAR}, #{SIGN_ENTITY_SIGN_SWITCH,jdbcType=VARCHAR}, 
       #{SIGN_ENTITY_SIGN_LAWSUIT,jdbcType=VARCHAR}, #{SIGN_ENTITY_SIGN_LOST,jdbcType=VARCHAR}, 
-      #{SIGN_ENTITY_SIGN_TRAVEL,jdbcType=VARCHAR}, #{SIGN_ENTITY_SIGN_CHILD,jdbcType=VARCHAR}
-      )
+      #{SIGN_ENTITY_SIGN_TRAVEL,jdbcType=VARCHAR}, #{SIGN_ENTITY_SIGN_CHILD,jdbcType=VARCHAR},
+    #{create_time,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="cn.no7player.model.Afortune" >
     <!--
@@ -191,6 +193,9 @@
       <if test="SIGN_ENTITY_SIGN_CHILD != null" >
         SIGN_ENTITY_SIGN_CHILD,
       </if>
+      <if test="create_time != null">
+        create_time,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -276,6 +281,9 @@
       </if>
       <if test="SIGN_ENTITY_SIGN_CHILD != null" >
         #{SIGN_ENTITY_SIGN_CHILD,jdbcType=VARCHAR},
+      </if>
+      <if test="create_time != null">
+        #{create_time,jdbcType=TIMESTAMP},
       </if>
     </trim>
   </insert>
@@ -368,6 +376,9 @@
       <if test="SIGN_ENTITY_SIGN_CHILD != null" >
         SIGN_ENTITY_SIGN_CHILD = #{SIGN_ENTITY_SIGN_CHILD,jdbcType=VARCHAR},
       </if>
+      <if test="create_time != null">
+        create_time = #{create_time,jdbcType=TIMESTAMP},
+      </if>
     </set>
     where Id = #{id,jdbcType=INTEGER}
   </update>
@@ -404,7 +415,8 @@
       SIGN_ENTITY_SIGN_LAWSUIT = #{SIGN_ENTITY_SIGN_LAWSUIT,jdbcType=VARCHAR},
       SIGN_ENTITY_SIGN_LOST = #{SIGN_ENTITY_SIGN_LOST,jdbcType=VARCHAR},
       SIGN_ENTITY_SIGN_TRAVEL = #{SIGN_ENTITY_SIGN_TRAVEL,jdbcType=VARCHAR},
-      SIGN_ENTITY_SIGN_CHILD = #{SIGN_ENTITY_SIGN_CHILD,jdbcType=VARCHAR}
+      SIGN_ENTITY_SIGN_CHILD = #{SIGN_ENTITY_SIGN_CHILD,jdbcType=VARCHAR},
+      create_time = #{create_time,jdbcType=TIMESTAMP}
     where Id = #{id,jdbcType=INTEGER}
   </update>
 
@@ -415,6 +427,13 @@
     from ifortune
     where name = #{name}
     and BIRTH = #{birth}
+  </select>
+
+  <!-- 根据订单查询签 -->
+  <select id="findByOrderId" resultMap="BaseResultMap" >
+    select i.* from ifortune i, order_sign o
+    where i.id = o.ifortune_id
+    and o.order_id = #{orderId}
   </select>
 
 </mapper>

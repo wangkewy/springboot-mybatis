@@ -53,4 +53,7 @@ public interface AfortuneMapper {
     int updateByPrimaryKey(Afortune record);
 
     Afortune find(@Param("name") String name, @Param("birth") String birth);
+
+    Afortune findByOrderId(@Param("orderId") String orderId);
+
 }

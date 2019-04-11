@@ -32,6 +32,12 @@
                selectByExampleQueryId="false">
             <property name="useActualColumnNames" value="true"/>
         </table>
+        <table schema="facai" tableName="sign_order" domainObjectName="SignOrder"
+               enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false"
+               selectByExampleQueryId="false">
+            <property name="useActualColumnNames" value="true"/>
+        </table>
 
     </context>
 </generatorConfiguration>
