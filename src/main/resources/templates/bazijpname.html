@@ -13,6 +13,7 @@
     <link href="/statics/ffsm/bazimf/10010/style.min.css" rel="stylesheet" type="text/css"/>
     <script src="//apps.bdimg.com/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="/statics/ffsm/public/js/require/require.min.js?tm=123" data-main="/statics/ffsm/public/js/common.min.js?tm=123?v=0817"></script>
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
 </head>
 <body>
 <div class="container pay">
@@ -49,13 +50,18 @@
                                 <span>微信支付</span>
                                 <span class="yh fr">立即支付</span>
                             </li></a>
+                            <br/>
+                            <!--<a href="https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxd0b7cbcc4c5cbee0&amp;redirect_uri=http://xm.woniu8.com/pay_jsapi/pay&amp;response_type=code&amp;scope=snsapi_base#wechat_redirect">微信JSAPI支付</a>-->
+                            <a href="/pay_jsapi/payWX">微信JSAPI支付</a>
+                            <!--<a href="/pay_jsapi/pay">ping++ 微信JSAPI支付</a>-->
+
                             <!--/pay/go?oid=201904041702471554368567465839&amp;type=2-->
-                            <a class="alipay" target="_self" href="javascript:void(0);" onclick=""><li id="zfb_zf">
-                                <span class="pay-icon icon-zfb"></span>
-                                <span>支付宝支付</span>
-                                <span class="yh fr">立即支付</span>
-                            </li>
-                            </a>
+                            <!--<a class="alipay" target="_self" href="javascript:void(0);" onclick=""><li id="zfb_zf">-->
+                                <!--<span class="pay-icon icon-zfb"></span>-->
+                                <!--<span>支付宝支付</span>-->
+                                <!--<span class="yh fr">立即支付</span>-->
+                            <!--</li>-->
+                            <!--</a>-->
                         </ul>
                     </div>
                 </div>
@@ -180,8 +186,16 @@
             if(result.msg == 'success'){
                 location.href = result.mweb_url;
             } else {
-                alert("支付失败，请重新支付");
+                alert(result);
+                <!--alert("支付失败，请重新支付");-->
             }
+        });
+    }
+
+    function payWeixinJSAPI(){
+        var url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxd0b7cbcc4c5cbee0&amp;redirect_uri=http://xm.woniu8.com/pay_jsapi/pay&amp;response_type=code&amp;scope=snsapi_base#wechat_redirect";
+        $.get(url, function(result){
+            alert('result : ' + result);
         });
     }
 </script>
@@ -246,6 +260,7 @@
     }
 
     $(function(){
+        alert("260");
         timer(intDiff);
         if (isWeixin()) {
             $('.j-pay-box .alipay').hide();
