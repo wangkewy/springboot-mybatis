@@ -14,9 +14,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.*;
@@ -292,4 +290,50 @@ public class WXPayUtil {
         return System.currentTimeMillis();
     }
 
+    /**
+     * 微信返回结果处理
+     * @author wk
+     * */
+    public static String inputStream2String(InputStream is, String charset){
+        try {
+            ByteArrayOutputStream boa = new ByteArrayOutputStream();
+            int len = 0;
+            byte[] buffer=new byte[1024];
+            while((len = is.read(buffer)) != -1){
+                boa.write(buffer,0,len);
+            }
+
+            is.close();
+            boa.close();
+
+            byte[] result=boa.toByteArray();
+            return new String(result, charset);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * 商户订单号
+     * @author wangke
+     * */
+    public static String generateOutTradeNo(){
+        //当前时间
+        long time = new Date().getTime();
+
+        //随机6位数
+        char[] nonceChars = new char[6];
+        for (int index = 0; index < nonceChars.length; ++index) {
+            nonceChars[index] = SYMBOLS.charAt(RANDOM.nextInt(SYMBOLS.length()));
+        }
+
+        //拼接
+        StringBuffer outTradeNo = new StringBuffer();
+        outTradeNo.append(time);
+        outTradeNo.append(nonceChars);
+
+        return outTradeNo.toString();
+    }
 }

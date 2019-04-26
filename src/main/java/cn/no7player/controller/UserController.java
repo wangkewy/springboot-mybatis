@@ -2,11 +2,12 @@ package cn.no7player.controller;
 
 import cn.no7player.model.User;
 import cn.no7player.service.UserService;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.logging.Logger;
 
 /**
  * Created by zl on 2015/8/27.
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class UserController {
 
-    private Logger logger = Logger.getLogger(UserController.class);
+    private Logger logger = Logger.getLogger("UserController");
 
     @Autowired
     private UserService userService;

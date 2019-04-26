@@ -12,8 +12,9 @@ public class AfortuneService {
     @Autowired
     private AfortuneMapper afortuneMapper;
 
-    public void save(Afortune afortune){
-        afortuneMapper.insert(afortune);
+    public int save(Afortune afortune){
+        afortuneMapper.insertSelective(afortune);
+        return afortune.getId();
     }
 
     /**
@@ -30,6 +31,13 @@ public class AfortuneService {
     public Afortune findByOrderId(String orderId){
         Afortune afortune = afortuneMapper.findByOrderId(orderId);
         return afortune;
+    }
+
+    /**
+     * 查询
+     * */
+    public Afortune findById(int id){
+        return afortuneMapper.selectByPrimaryKey(id);
     }
 
 }

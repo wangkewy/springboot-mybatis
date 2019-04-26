@@ -2,7 +2,8 @@ package cn.no7player.controller;
 
 import cn.no7player.util.*;
 import com.alibaba.fastjson.JSONObject;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,7 +30,7 @@ import java.util.Random;
 @Controller
 @RequestMapping("/pay")
 public class PayController {
-    private Logger logger = Logger.getLogger(PayController.class);
+    private Logger logger = LoggerFactory.getLogger(PayController.class);
 
     @Value("${w_APPID}")
     private String APPID;

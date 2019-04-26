@@ -30,7 +30,7 @@
                 <p class="tit1">测算项目：2019猪年运势</p>
                 <div class="clearfix inner">
                     <div class="fl">
-                        <span class="yh">限时优惠￥16.6元</span>
+                        <span class="yh" id="amount" value="0.02">限时优惠￥16.6元</span>
                         <s class="gray">原价：128元</s></div>
                     <div class="fr">
                         <p>距优惠结束</p>
@@ -51,9 +51,8 @@
                                 <span class="yh fr">立即支付</span>
                             </li></a>
                             <br/>
-                            <!--<a href="https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxd0b7cbcc4c5cbee0&amp;redirect_uri=http://xm.woniu8.com/pay_jsapi/pay&amp;response_type=code&amp;scope=snsapi_base#wechat_redirect">微信JSAPI支付</a>-->
-                            <a href="/pay_jsapi/payWX">微信JSAPI支付</a>
-                            <!--<a href="/pay_jsapi/pay">ping++ 微信JSAPI支付</a>-->
+                            <!--<a href="/pay_jsapi/payWX" >微信JSAPI支付</a>-->
+                            <a href="javascript:void(0);" onclick="payWeixinJSAPI();">微信JSAPI支付</a>
 
                             <!--/pay/go?oid=201904041702471554368567465839&amp;type=2-->
                             <!--<a class="alipay" target="_self" href="javascript:void(0);" onclick=""><li id="zfb_zf">-->
@@ -73,9 +72,10 @@
         <div class="look-info">
             <div class="name-box">
                 <div class="item">
-                    <p>姓名：<label th:text="${username}"></label> <span style="margin-left:20px">性别：<label th:text="${gender}"></label></span></p>
-                    <p>公历生日：<label th:text="${birthday}"></label></p>
-                    <p>农历生日：<label th:text="${lDate}"></label></p>
+                    <p>姓名：<label th:text="${username}" id="username"></label>
+                        <span style="margin-left:20px">性别：<label th:text="${gender}" id="gender"></label></span></p>
+                    <p>公历生日：<label th:text="${birthday}" id="birthday"></label></p>
+                    <p>农历生日：<label th:text="${lDate}" id="lDate"></label></p>
                 </div>
             </div>
             <img src="/statics/ffsm/bazimf/10010/images/info-img.png?tm=555" alt=""/>
@@ -192,12 +192,23 @@
         });
     }
 
+    //微信JSAPI支付
     function payWeixinJSAPI(){
-        var url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxd0b7cbcc4c5cbee0&amp;redirect_uri=http://xm.woniu8.com/pay_jsapi/pay&amp;response_type=code&amp;scope=snsapi_base#wechat_redirect";
-        $.get(url, function(result){
-            alert('result : ' + result);
-        });
+        var url = '/pay_jsapi/payWX';
+        var param = {
+            amount:$('#amount').attr('value'),
+            username:$('#username').text(),
+            gender:$('#gender').text(),
+            birthday:$('#birthday').text()
+        };
+        $.post(url,
+               param,
+               function(result){
+                   location.href = result;
+               }
+        );
     }
+
 </script>
 <script type="text/javascript">
     var intDiff = parseInt(5734);//倒計時總秒數量
