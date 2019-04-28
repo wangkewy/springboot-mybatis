@@ -1,10 +1,329 @@
-<!DOCTYPE HTML>
-<html>
-<head> 
-    <title>Getting Started: Serving Web Content</title> 
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>2019年运势详批</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta content="yes" name="apple-mobile-web-app-capable" />
+    <meta content="black" name="apple-mobile-web-app-status-bar-style" />
+    <meta content="telephone=no" name="format-detection" />
+    <link rel="shortcut icon" href="/statics/ffsm/favicon.ico" />
+    <link href="/statics/ffsm/bazimf/10010/wap.min-v=0817.css" rel="stylesheet" type="text/css" />
+    <link href="/statics/ffsm/bazimf/10010/style.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="/statics/ffsm/bazimf/10010/sty.css" />
+    <script src="/statics/ffsm/public/js/jquery.min.js"></script>
+    <script src="/statics/ffsm/public/js/require/require.min.js"></script>
+    <script src="/statics/ffsm/public/js/common.min.js"></script>
 </head>
+
 <body>
-    hello man!
+<header class="public_header">
+    <!-- <h1 class="public_h_con">八字综合详批</h1> -->
+</header>
+<div class="public_banner">
+    <img src="/statics/ffsm/bazimf/10010/images/banner.png" alt="八字精批" />
+    <div class="person">
+        <img src="/statics/ffsm/bazimf/10010/images/person.png" alt="八字精批" />
+    </div>
+</div>
+<div class="public_bg_color">
+    <form class="J_ajaxForm J_testFixedTop" id="submit1" action="/bazijpname"
+          name="login" method="post" onSubmit="return checkForm();">
+        <div class="public_form_wrap" id="miaodian">
+            <ul>
+                <li>
+                    <div class="left">
+                        您的姓名
+                    </div>
+                    <div class="auto">
+                        <input type="text" class="bg_no" id="username" name="username" placeholder="请输入名字（必须汉字）" value="" />
+                    </div>
+                </li>
+                <li>
+                    <div class="left">
+                        您的性别
+                    </div>
+                    <div class="auto sex sex J_sex">
+                                <span class="cur" data-value="1"><i></i>
+                                    <font>男</font>
+                                </span><span data-value="0"><i></i>
+                                    <font>女</font>
+                                </span><input type="hidden" name="gender" value="1" />
+                    </div>
+                </li>
+                <li>
+                    <div class="left">
+                        出生日期
+                    </div>
+                    <div class="auto">
+                        <input type="text" id="birthday" name="birthday" data-input-id="b_input" class="Js_date" data-type="0" value="请选择出生日期" placeholder="请选择日期" data-toid-hour="birthday" />
+                    </div>
+                </li>
+                <input type="hidden" name="h" class="auto input J-time" id="j_dd" value=""/>
+                <input type="hidden" name="y" value="0"/>
+                <input type="hidden" name="m" value="0"/>
+                <input type="hidden" name="d" value="0"/>
+
+                <input type="hidden" name="i" value="0" />
+                <input type="hidden" name="cY" value="" />
+                <input type="hidden" name="cM" value=""/>
+                <input type="hidden" name="cD" value=""/>
+                <input type="hidden" name="cH" value=""/>
+                <input type="hidden" name="term1" value=""/>
+                <input type="hidden" name="term2" value=""/>
+                <input type="hidden" name="start_term" value=""/>
+                <input type="hidden" name="end_term" value=""/>
+                <input type="hidden" name="start_term1" value=""/>
+                <input type="hidden" name="end_term1" value=""/>
+                <input type="hidden" name="lDate" value=""/>
+            </ul>
+            <div class="public_btn_s">
+                <img  class="J_ajax_submit_btnsub" src="/statics/ffsm/bazimf/10010/images/submit-btn.png?tm=123" alt=""/>
+            </div>
+            <div class="form_bottom_txt J_testFixedShow">
+                <span>已为<b>23285408</b>人查看2019运势详批</span><a href="./order/history?skin=1"><span>查看历史订单 ></span></a>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="public_bg_color">
+    <div class="know_img">
+        <img src="/statics/ffsm/bazimf/10010/images/jp_1.png?tm=1234" alt="测算后您将知道以下信息"/>
+        <img src="/statics/ffsm/bazimf/10010/images/jp_2.png?tm=123" alt="测算后您将知道以下信息"/>
+        <img src="/statics/ffsm/bazimf/10010/images/jp_3.png?tm=123" alt="测算后您将知道以下信息"/>
+    </div>
+</div>
+<div class="comment-title">
+    <img src="/statics/ffsm/bazimf/10010/images/comment-title.png" alt=""/>
+</div>
+<div class="comment-box j-comment-box" style="overflow:hidden">
+    <ul class="list">
+        <li>
+            <p class="name">张女士 137****0332<span class="local">广州</span></p>
+            <p class="text">今年运气差到了极点，做什么都不顺利，刚测试了下明年的运势，里面对我的八字流年运势分析的很好，感觉2019年我真的可以转运了！</p>
+        </li>
+        <li>
+            <p class="name">李女士 186****0755<span class="local">北京</span></p>
+            <p class="text">每年到这时候都会来这里做个测试，每年都能给自己一些启发，很准，确实得到了升职加薪，今年继续加油！</p>
+        </li>
+        <li>
+            <p class="name">秦小姐 138****0988<span class="local">天津</span></p>
+            <p class="text">经历了这两年的大起大落，抱着求安慰的心态来做这个，没想到很专业，明年的运势虽称不上非常好，但也不差，平平安安，顺顺利利过一年就好！</p>
+        </li>
+        <li>
+            <p class="name">龚先生 150****4532<span class="local">西安</span></p>
+            <p class="text">好想知道2019年运气到底怎么样，结果很惊喜！！详细的分析了我的运势，豁然开朗。</p>
+            <p></p>
+        </li>
+        <li>
+            <p class="name">陈先生 180****7665<span class="local">上海</span></p>
+            <p class="text">不错，老师建议很中肯，测算之后终于有了方向。</p>
+            <p></p>
+            <p></p>
+        </li>
+    </ul>
+</div>
+<div class="link-box">
+    <div class="title">
+        <img src="/statics/ffsm/bazimf/10010/images/link-title.jpg" alt=""/>
+    </div>
+    <ul class="clearfix">
+        <li>
+            <a href="#">
+                <img src="/statics/ffsm/bazimf/10010/images/link-icon05.png" alt=""/>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <img src="/statics/ffsm/bazimf/10010/images/link-icon02.png" alt=""/>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <img src="/statics/ffsm/bazimf/10010/images/link-icon03.png" alt=""/>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <img src="/statics/ffsm/bazimf/10010/images/link-icon04.png" alt=""/>
+            </a>
+        </li>
+    </ul>
+</div>
+<div style="text-align:center;padding: 10px 0;margin: 10px 0;">
+    <a href="#" style="color: #fff;border: 1px solid #fff;padding: 5px 10px;border-radius: 5px;font-size: 12px;">更多测算精品</a>
+</div>
+<div class="footer-box">
+    <p>如有疑问，请联系客服。客服QQ：2198762109</p>
+    <p>客服在线时间：10:00-18:00(周一至周五) </p>
+    <img src="/statics/ffsm/bazimf/10010/images/footer-img.png" alt=""/>
+</div>
+<style type="text/css">
+            .input_btn {
+                margin: 10px 2px;
+                overflow: hidden;
+            }
+
+            .input_btn a {
+                width: 100%;
+                float: left;
+                margin: 0 auto;
+                box-sizing: border-box;
+                height: 36px;
+                line-height: 36px;
+                color: #fff;
+                text-align: center;
+            }
+
+            .as_form .input_btn .cancel {
+                background-color: #999;
+                border-top-left-radius: 4px;
+                border-bottom-left-radius: 4px;
+                border-top-right-radius: 4px;
+                border-bottom-right-radius: 4px;
+
+            }
+
+            .input_btn .sure {
+                border: 1px solid #f90;
+                background-color: #f90;
+            }
+
+            .input_text,
+            .as_form .input_textarea {
+                position: relative;
+                display: block;
+                overflow: hidden;
+                padding: 0 0 0 100px;
+                height: 32px;
+                margin: 6px 4px;
+            }
+
+            .input_text span,
+            .as_form .input_textarea span {
+                width: 94px;
+                padding: 0 0 0 6px;
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 32px;
+                line-height: 32px;
+            }
+
+            .input_text input,
+            .as_form .input_textarea textarea {
+                width: 100%;
+                box-sizing: border-box;
+                border: 1px solid #ccc;
+                height: 32px;
+                padding: 0 4px;
+            }
+
+            .as_form {
+                position: relative;
+                margin: 0;
+            }
+        </style>
+<div class="lunpan_box">
+    <div class="lunpan">
+        <img src="/statics/ffsm/bazimf/10010/images/luopan.png" alt="轮盘"/>
+        <!-- <img src="/statics/ffsm/bazisyy/1/images/zhizheng.png" alt="轮盘"> -->
+        <p class="text">大师解析中...</p>
+    </div>
+    <div class="lunpan_color"></div>
+</div>
+<div class="alert-pop animated fadeIn j-alert">
+
+</div>
+<script>
+    $(function () {
+        // 服务轮播
+        var scrollTop = 0;
+        var scrollUl = $('#feedbackScroll').children('ul');
+        function scrollTip() {
+            var top = scrollUl.children('li').eq(0).outerHeight();
+            if (Math.abs(scrollTop) == Math.abs(top)) {
+                scrollUl.children('li').eq(0).appendTo(scrollUl);
+                scrollUl.css("top", 0);
+                scrollTop = 0;
+            } else {
+                scrollTop--;
+                scrollUl.css("top", scrollTop);
+            }
+        }
+        setInterval(scrollTip, 50);
+    })
+</script>
+<div class="public_test_fixed" id="testFixedBtn">
+    <img  class="J_ajax_submit_btnsub" src="/statics/ffsm/bazimf/10010/images/submit-btn.png" alt=""/>
+</div>
+<script>
+    $('.sure').click(function () {
+        alert('你没有付费不能评价');
+        return false;
+    });
+    var isClick = true;
+    var $jAlert = $('.j-alert');
+    if (isClick) {
+        $('.J_ajax_submit_btnsub').click(function () {
+            var $name = $('#miaodian input[name="username"]').val();
+            var $birthday = $('#miaodian #birthday').val();
+            if (!$name) {
+                isClick = false
+                $jAlert.show().text('请填写您的姓名');
+                setTimeout(function () {
+                    $jAlert.hide().text('');
+                    isClick = true
+                }, 2000)
+            } else if ($birthday === '请选择出生日期') {
+                $jAlert.show().text('请选择出生日期');
+                isClick = false
+                $jAlert.show().text('请选择出生日期');
+                setTimeout(function () {
+                    $jAlert.hide().text('');
+                    isClick = true
+                }, 2000)
+            <!--} else if ($name && $birthday !== '请选择出生日期') {-->
+            } else {
+                $('.lunpan_box').css('display', 'block');
+                setTimeout(function () {  //使用  setTimeout（）方法设定定时2000毫秒
+                    checkForm();
+                    document.getElementById("submit1").submit();
+                }, 2000);
+            }
+        });
+    }
+</script>
+<script>
+    //测算底部悬浮
+    (function () {
+        var topShow = $(".J_testFixedShow");
+        if (topShow.length) {
+            var topShow = topShow.offset().top;
+            var topNum = $(".J_testFixedTop").length > 0 ? ($(".J_testFixedTop").offset().top - 20) : 200;
+            var testBtn = $("#testFixedBtn");
+            $(window).scroll(function () {
+                var wt = $(window).scrollTop();
+                wt > topShow ? (testBtn.fadeIn(), $('.public_footer_servers').css('padding-bottom', '50px')) : (testBtn.fadeOut(), $('.public_footer_servers').css('padding-bottom', '20px'));
+            });
+            testBtn.add('.J_testScrollTop').on('click', function () { $('html,body').scrollTop(topNum) })
+        }
+    })()
+</script>
+<script>
+    function AutoScroll(obj) {
+        $(obj).find("ul:first").animate({
+            marginTop: "-105px"
+        }, 2300, function () {
+            $(this).css({ marginTop: "-2.5px" }).find("li:first").appendTo(this);
+        });
+    }
+    $(function () {
+        var myar = setInterval('AutoScroll(".j-comment-box")', 300);
+    });
+</script>
+<script src="/statics/suanming.js"></script>
 </body>
+<script src="/statics/ffsm/public/js/jquery.vticker.min.js"></script>
 </html>
