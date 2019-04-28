@@ -44,15 +44,12 @@
                 <div class="j-pay-box">
                     <div class="clearfix inner">
                         <ul class="pay-type">
-                            <!--/pay/go?oid=201904041702471554368567465839&amp;type=1-->
                             <a class="weixin" target="_self" href="javascript:void(0);" onclick="payWeixin()"><li class="on" id="wx_zf">
                                 <span class="pay-icon icon-wechat"></span>
                                 <span>微信支付</span>
                                 <span class="yh fr">立即支付</span>
                             </li></a>
                             <br/>
-                            <!--<a href="/pay_jsapi/payCallback" >微信JSAPI支付</a>-->
-                            <a href="javascript:void(0);" onclick="payWeixinJSAPI();">微信JSAPI支付</a>
 
                             <!--/pay/go?oid=201904041702471554368567465839&amp;type=2-->
                             <!--<a class="alipay" target="_self" href="javascript:void(0);" onclick=""><li id="zfb_zf">-->
@@ -128,11 +125,11 @@
                 解锁查看所有测算结果
             </div>
             <div class="public_pp_price">
-                <span>统一鉴定价：</span><strong>￥0.1元</strong>
+                <span>统一鉴定价：</span><strong> 0.01元</strong>
             </div>
             <div class="public_pay_box">
-                <a class="weixin" target="_self" href="/pay/go?oid=201904041702471554368567465839&amp;type=1">微信安全支付</a>
-                <a class="alipay" target="_self" href="/pay/go?oid=201904041702471554368567465839&amp;type=2">支付宝安全支付</a>
+                <a class="weixin" target="_self" href="javascript:void(0);" onclick="payWeixin();">微信安全支付</a>
+                <!--<a class="alipay" target="_self" href="/pay/go?oid=201904041702471554368567465839&amp;type=2">支付宝安全支付</a>-->
             </div>
         </div>
     </div>
@@ -147,7 +144,7 @@
             </p>
             <p class="text">本次测算准确率高达98.6%！</p>
             <p class="text" style="margin-bottom:-10px">你确定放弃这次改运的机会吗？</p>
-            <a href="/pay/go?oid=201904041702471554368567465839&amp;type=1" class="btn">立即查看分析结果</a>
+            <a href="#" class="btn">立即查看分析结果</a>
             <!-- <a href="javascript:;" class="btn-close btn">关闭</a> -->
         </div>
     </div>
@@ -179,15 +176,25 @@
     })(jQuery);
     $("#publicPayBottom").publicPopup();
 
-    //微信支付
+    //微信支付入口
     function payWeixin(){
+        if(isWeixin()){
+            console.info('weixin');
+            payWeixinJSAPI();
+        } else {
+            console.info('not weixin');
+            payWeixinH5();
+        }
+    }
+
+    //微信H5支付
+    function payWeixinH5(){
         var url = "/pay/go";
         $.get(url, function(result){
             if(result.msg == 'success'){
                 location.href = result.mweb_url;
             } else {
-                alert(result);
-                <!--alert("支付失败，请重新支付");-->
+                alert("支付失败，请重新支付");
             }
         });
     }
@@ -209,9 +216,16 @@
         );
     }
 
+    function isWeixin() {
+        const ua = navigator.userAgent.toLowerCase();
+        if (ua.match(/MicroMessenger/i) == 'micromessenger') {
+            return true;
+        }
+        return false;
+    }
 </script>
 <script type="text/javascript">
-    var intDiff = parseInt(5734);//倒計時總秒數量
+    var intDiff = parseInt(5734);//倒计时总秒数量
     function isWeixin() {
         const ua = navigator.userAgent.toLowerCase();
         if (ua.match(/MicroMessenger/i) == 'micromessenger') {
@@ -279,7 +293,7 @@
         }
     });
     //支付后检测跳转
-        var inquiry_lock = 0;
+    var inquiry_lock = 0;
     $(document).ready(function () {
         setInterval(function () {
             inquiry();

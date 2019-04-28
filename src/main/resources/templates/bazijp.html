@@ -155,7 +155,7 @@
     <a href="#" style="color: #fff;border: 1px solid #fff;padding: 5px 10px;border-radius: 5px;font-size: 12px;">更多测算精品</a>
 </div>
 <div class="footer-box">
-    <p>如有疑问，请联系客服。客服QQ：</p>
+    <p>如有疑问，请联系客服。客服QQ：2198762109</p>
     <p>客服在线时间：10:00-18:00(周一至周五) </p>
     <img src="/statics/ffsm/bazimf/10010/images/footer-img.png" alt=""/>
 </div>
@@ -237,93 +237,92 @@
 
 </div>
 <script>
-            $(function () {
-                // 服务轮播
-                var scrollTop = 0;
-                var scrollUl = $('#feedbackScroll').children('ul');
-                function scrollTip() {
-                    var top = scrollUl.children('li').eq(0).outerHeight();
-                    if (Math.abs(scrollTop) == Math.abs(top)) {
-                        scrollUl.children('li').eq(0).appendTo(scrollUl);
-                        scrollUl.css("top", 0);
-                        scrollTop = 0;
-                    } else {
-                        scrollTop--;
-                        scrollUl.css("top", scrollTop);
-                    }
-                }
-                setInterval(scrollTip, 50);
-            })
-        </script>
+    $(function () {
+        // 服务轮播
+        var scrollTop = 0;
+        var scrollUl = $('#feedbackScroll').children('ul');
+        function scrollTip() {
+            var top = scrollUl.children('li').eq(0).outerHeight();
+            if (Math.abs(scrollTop) == Math.abs(top)) {
+                scrollUl.children('li').eq(0).appendTo(scrollUl);
+                scrollUl.css("top", 0);
+                scrollTop = 0;
+            } else {
+                scrollTop--;
+                scrollUl.css("top", scrollTop);
+            }
+        }
+        setInterval(scrollTip, 50);
+    })
+</script>
 <div class="public_test_fixed" id="testFixedBtn">
     <img  class="J_ajax_submit_btnsub" src="/statics/ffsm/bazimf/10010/images/submit-btn.png" alt=""/>
 </div>
 <script>
-            $('.sure').click(function () {
-                alert('你没有付费不能评价');
-                return false;
-            });
-            var isClick = true;
-            var $jAlert = $('.j-alert');
-            if (isClick) {
-                $('.J_ajax_submit_btnsub').click(function () {
-                    var $name = $('#miaodian input[name="username"]').val();
-                    var $birthday = $('#miaodian #birthday').val();
-                    if (!$name) {
-                        isClick = false
-                        $jAlert.show().text('请填写您的姓名');
-                        setTimeout(function () {
-                            $jAlert.hide().text('');
-                            isClick = true
-                        }, 2000)
-                    } else if ($birthday === '请选择出生日期') {
-                        $jAlert.show().text('请选择出生日期');
-                        isClick = false
-                        $jAlert.show().text('请选择出生日期');
-                        setTimeout(function () {
-                            $jAlert.hide().text('');
-                            isClick = true
-                        }, 2000)
-                    <!--} else if ($name && $birthday !== '请选择出生日期') {-->
-                    } else {
-                        $('.lunpan_box').css('display', 'block');
-                        setTimeout(function () {  //使用  setTimeout（）方法设定定时2000毫秒
-                            checkForm();
-                            document.getElementById("submit1").submit();
-                        }, 2000);
-                    }
-                });
+    $('.sure').click(function () {
+        alert('你没有付费不能评价');
+        return false;
+    });
+    var isClick = true;
+    var $jAlert = $('.j-alert');
+    if (isClick) {
+        $('.J_ajax_submit_btnsub').click(function () {
+            var $name = $('#miaodian input[name="username"]').val();
+            var $birthday = $('#miaodian #birthday').val();
+            if (!$name) {
+                isClick = false
+                $jAlert.show().text('请填写您的姓名');
+                setTimeout(function () {
+                    $jAlert.hide().text('');
+                    isClick = true
+                }, 2000)
+            } else if ($birthday === '请选择出生日期') {
+                $jAlert.show().text('请选择出生日期');
+                isClick = false
+                $jAlert.show().text('请选择出生日期');
+                setTimeout(function () {
+                    $jAlert.hide().text('');
+                    isClick = true
+                }, 2000)
+            <!--} else if ($name && $birthday !== '请选择出生日期') {-->
+            } else {
+                $('.lunpan_box').css('display', 'block');
+                setTimeout(function () {  //使用  setTimeout（）方法设定定时2000毫秒
+                    checkForm();
+                    document.getElementById("submit1").submit();
+                }, 2000);
             }
-
-        </script>
+        });
+    }
+</script>
 <script>
-            //测算底部悬浮
-            (function () {
-                var topShow = $(".J_testFixedShow");
-                if (topShow.length) {
-                    var topShow = topShow.offset().top;
-                    var topNum = $(".J_testFixedTop").length > 0 ? ($(".J_testFixedTop").offset().top - 20) : 200;
-                    var testBtn = $("#testFixedBtn");
-                    $(window).scroll(function () {
-                        var wt = $(window).scrollTop();
-                        wt > topShow ? (testBtn.fadeIn(), $('.public_footer_servers').css('padding-bottom', '50px')) : (testBtn.fadeOut(), $('.public_footer_servers').css('padding-bottom', '20px'));
-                    });
-                    testBtn.add('.J_testScrollTop').on('click', function () { $('html,body').scrollTop(topNum) })
-                }
-            })()
-        </script>
-<script>
-            function AutoScroll(obj) {
-                $(obj).find("ul:first").animate({
-                    marginTop: "-105px"
-                }, 2300, function () {
-                    $(this).css({ marginTop: "-2.5px" }).find("li:first").appendTo(this);
-                });
-            }
-            $(function () {
-                var myar = setInterval('AutoScroll(".j-comment-box")', 300);
+    //测算底部悬浮
+    (function () {
+        var topShow = $(".J_testFixedShow");
+        if (topShow.length) {
+            var topShow = topShow.offset().top;
+            var topNum = $(".J_testFixedTop").length > 0 ? ($(".J_testFixedTop").offset().top - 20) : 200;
+            var testBtn = $("#testFixedBtn");
+            $(window).scroll(function () {
+                var wt = $(window).scrollTop();
+                wt > topShow ? (testBtn.fadeIn(), $('.public_footer_servers').css('padding-bottom', '50px')) : (testBtn.fadeOut(), $('.public_footer_servers').css('padding-bottom', '20px'));
             });
-        </script>
+            testBtn.add('.J_testScrollTop').on('click', function () { $('html,body').scrollTop(topNum) })
+        }
+    })()
+</script>
+<script>
+    function AutoScroll(obj) {
+        $(obj).find("ul:first").animate({
+            marginTop: "-105px"
+        }, 2300, function () {
+            $(this).css({ marginTop: "-2.5px" }).find("li:first").appendTo(this);
+        });
+    }
+    $(function () {
+        var myar = setInterval('AutoScroll(".j-comment-box")', 300);
+    });
+</script>
 <script src="/statics/suanming.js"></script>
 </body>
 <script src="/statics/ffsm/public/js/jquery.vticker.min.js"></script>

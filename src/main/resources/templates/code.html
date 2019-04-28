@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head> 
-    <title>运势</title>
+    <title>2019年运势详批</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <script src="http://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
     <script src="//apps.bdimg.com/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -61,7 +61,8 @@
       	     if(res.err_msg == "get_brand_wcpay_request:ok" ) {
                  console.log('支付成功');
                  //支付成功后跳转的页面
-
+                 var state = $('#state').text();
+                 location.href = '/bazijpresult?orderSignId=' + state;
              }else if(res.err_msg == "get_brand_wcpay_request:cancel"){
           	     console.log('支付取消');
              }else if(res.err_msg == "get_brand_wcpay_request:fail"){

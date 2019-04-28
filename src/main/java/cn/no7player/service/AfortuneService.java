@@ -44,8 +44,14 @@ public class AfortuneService {
      * 根据订单查询签
      * */
     public Afortune findByOrderId(String orderId){
-        Afortune afortune = afortuneMapper.findByOrderId(orderId);
-        return afortune;
+        return afortuneMapper.findByOrderId(orderId);
+    }
+
+    /**
+     * 根据订单ID查询签
+     * */
+    public Afortune findByOrderSignId(int orderSignId){
+        return afortuneMapper.findByOrderSignId(orderSignId);
     }
 
     /**

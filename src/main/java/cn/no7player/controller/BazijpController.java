@@ -52,8 +52,13 @@ public class BazijpController {
     }
 
     @RequestMapping("/bazijpresult")
-    public String bazijpResult(String ifortuneId, Model model){
-        Afortune afortune = afortuneService.findById(Integer.valueOf(ifortuneId));
+    public String bazijpResult(String orderSignId, Model model){
+        logger.info("orderSignId : {}", orderSignId);
+        if(orderSignId == null){
+            return "bazijp404";
+        }
+        
+        Afortune afortune = afortuneService.findByOrderSignId(Integer.valueOf(orderSignId));
         if(afortune == null){
             return "bazijp404";
         }

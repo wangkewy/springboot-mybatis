@@ -191,9 +191,11 @@ public class PayJsapiController {
      * 微信支付成功,微信发送的callback信息,请注意修改订单信息
      * */
     @RequestMapping("/payCallback")
+    @ResponseBody
     public String payCallback (HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes){
         logger.info("payCallback");
         InputStream is = null;
+        String result = "";
         try {
             is = request.getInputStream();//获取请求的流信息(这里是微信发的xml格式所有只能使用流来读)
             String xml = WXPayUtil.inputStream2String(is, "UTF-8");
@@ -212,17 +214,18 @@ public class PayJsapiController {
                     redirectAttributes.addAttribute("ifortuneId", orderSign.getIfortune_id());
                     logger.info("order_id : {}, amount : {}, ifortuneId : {}",
                             orderSign.getOrder_id(), orderSign.getAmount(), orderSign.getIfortune_id());
+
+                    //告诉微信服务器收到信息了，不要在调用回调action了========这里很重要回复微信服务器信息用流发送一个xml即可
+                    result = "<xml><return_code><![CDATA[SUCCESS]]></return_code></xml>";
                 }
             }
-
-            //告诉微信服务器收到信息了，不要在调用回调action了========这里很重要回复微信服务器信息用流发送一个xml即可
-            response.getWriter().write("<xml><return_code><![CDATA[SUCCESS]]></return_code></xml>");
             is.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return "redirect:/bazijpresult";
+        return result;
+//        return "redirect:/bazijpresult";
     }
 
 }

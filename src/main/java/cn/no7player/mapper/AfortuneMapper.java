@@ -58,4 +58,6 @@ public interface AfortuneMapper {
 
     Afortune findByOrderId(@Param("orderId") String orderId);
 
+    Afortune findByOrderSignId(@Param("orderSignId") int orderSignIdId);
+
 }

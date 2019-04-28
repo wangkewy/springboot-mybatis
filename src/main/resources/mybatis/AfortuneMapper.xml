@@ -431,4 +431,11 @@
     and o.order_id = #{orderId}
   </select>
 
+  <!-- 根据订单查询签 -->
+  <select id="findByOrderSignId" resultMap="BaseResultMap" >
+    select i.* from ifortune i, order_sign o
+    where i.id = o.ifortune_id
+    and o.id = #{orderSignId}
+  </select>
+
 </mapper>
