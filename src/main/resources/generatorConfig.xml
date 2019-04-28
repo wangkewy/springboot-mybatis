@@ -32,7 +32,7 @@
                selectByExampleQueryId="false">
             <property name="useActualColumnNames" value="true"/>
         </table>
-        <table schema="facai" tableName="sign_order" domainObjectName="SignOrder"
+        <table schema="facai" tableName="order_sign" domainObjectName="OrderSign"
                enableCountByExample="false" enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
                selectByExampleQueryId="false">

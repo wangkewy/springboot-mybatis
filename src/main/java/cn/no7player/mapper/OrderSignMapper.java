@@ -51,4 +51,8 @@ public interface OrderSignMapper {
      */
     int updateByPrimaryKey(OrderSign record);
 
+    /**
+     * 根据订单号查询
+     * */
+    OrderSign selectByOrderId(String orderId);
 }

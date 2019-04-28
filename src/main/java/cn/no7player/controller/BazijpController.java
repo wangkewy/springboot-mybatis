@@ -6,6 +6,7 @@ import cn.no7player.util.HttpUtils;
 import cn.no7player.vo.UserForm;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
@@ -16,9 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Controller
 public class BazijpController {
@@ -53,28 +52,48 @@ public class BazijpController {
     }
 
     @RequestMapping("/bazijpresult")
-    public String bazijpResult(String birth, String firstName, String gender, String lastName, Model model){
-        birth = "20180808080808";
-        firstName = "张";
-        gender = "男";
-        lastName = "无忌";
-        String name = firstName + lastName;
-        logger.info("name : " + name + " ; birth : " + birth);
-        Afortune afortune = afortuneService.find(name, birth);
+    public String bazijpResult(String ifortuneId, Model model){
+        Afortune afortune = afortuneService.findById(Integer.valueOf(ifortuneId));
         if(afortune == null){
-            String result = ifortureCesuan(birth, firstName, gender, lastName);
-            if(result.length() > 0){
-                afortune = parseToAfortune(result);
-                afortuneService.save(afortune);
+            return "bazijp404";
+        }
+
+        String firstName = afortune.getFIRT_NAME();
+        String lastName = afortune.getLAST_NAME();
+        String birth = afortune.getBIRTH();
+        String gender = afortune.getGENDER();
+        String name = firstName + lastName;
+        logger.info("name : {} ; birth : {}", name ,birth);
+
+        if(StringUtils.isBlank(afortune.getSIGN_NAME())){
+            //查询是否有已查过的姓名
+            List<Afortune> afortuneList = afortuneService.find(name, birth);
+            if(afortuneList.size() > 1){
+                for(Afortune afortune1 : afortuneList){
+                    if(StringUtils.isBlank(afortune1.getSIGN_NAME())){
+                        afortune = copyToAfortune(afortune1, afortune);
+                        afortune.setCreate_time(new Date());
+                        afortuneService.update(afortune);
+                        break;
+                    }
+                }
+            } else {
+                String result = afortuneService.ifortureCesuan(birth, firstName, gender, lastName);
+                if(result.length() == 0 ){
+                    return "bazijp404";
+                }
+                afortune = parseToAfortune(result, afortune);
+                afortune.setCreate_time(new Date());
+                afortuneService.update(afortune);
             }
         }
 
-        if(afortune != null){
-            model.addAttribute("afortune", afortune);
-            return "bazijpresult";
-        } else {
+        if(StringUtils.isBlank(afortune.getSIGN_NAME())){
             return "bazijp404";
         }
+
+        model.addAttribute("afortune", afortune);
+        return "bazijpresult";
     }
 
     @RequestMapping("/bazijporderresult")
@@ -88,47 +107,9 @@ public class BazijpController {
         }
     }
 
-    /**
-     * 艾福特恩（iFORTUNE）_命理玄学知识图谱_五路财神灵签
-     * */
-    private String ifortureCesuan(String birth, String firstName, String gender, String lastName){
-        String result = "";
-//        String host = "http://wlcslq.market.alicloudapi.com";
-//        String path = "/ai_metaphysics/wu_lu_cai_shen_lin_qian/elite";
-        String method = "GET";
-//        String appcode = "05c74640d64c4894a661c3016108e5b3";
-        Map<String, String> headers = new HashMap<String, String>();
-        //最后在header中的格式(中间是英文空格)为Authorization:APPCODE 83359fd73fe94948385f570e3c139105
-        headers.put("Authorization", "APPCODE " + appcode);
-        headers.put("x-ca-nonce", UUID.randomUUID().toString());
-        Map<String, String> querys = new HashMap<String, String>();
-        querys.put("BIRTH", birth);
-        querys.put("FIRST_NAME", firstName);
-        querys.put("GENDER", gender);
-        querys.put("LAST_NAME", lastName);
-
-        try {
-            HttpResponse response = HttpUtils.doGet(host, path, method, headers, querys);
-            //获取response的body
-            int statusline = response.getStatusLine().getStatusCode();
-            if(statusline == 200){
-                result = EntityUtils.toString(response.getEntity());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return result;
-    }
-
     // 解析测算的结果
-    private Afortune parseToAfortune(String result){
+    private Afortune parseToAfortune(String result, Afortune afortune){
         JSONObject jsonObject = JSON.parseObject(result);
-        Afortune afortune = new Afortune();
-        afortune.setFIRT_NAME(jsonObject.getString("FIRT_NAME"));
-        afortune.setLAST_NAME(jsonObject.getString("LAST_NAME"));
-        afortune.setName(afortune.getFIRT_NAME() + afortune.getLAST_NAME());
-        afortune.setBIRTH(jsonObject.getString("BIRTH"));
         afortune.setNONGLI_YEAR(jsonObject.getString("YEAR"));
         afortune.setNONGLI_MONTH(jsonObject.getString("MONTH"));
         afortune.setNONGLI_DAY(jsonObject.getString("DAY"));
@@ -154,6 +135,29 @@ public class BazijpController {
         afortune.setSIGN_ENTITY_SIGN_CHILD(jsonObject.getJSONObject("SIGN_ENTITY").getString("SIGN_CHILD"));
 
         return afortune;
+    }
+
+    // 结果复制
+    private Afortune copyToAfortune(Afortune original, Afortune target){
+        target.setSIGN_NAME(original.getSIGN_NAME());
+        target.setSIGN_ID(original.getSIGN_ID());
+        target.setSIGN_TYPE(original.getSIGN_TYPE());
+        target.setSIGN_TITLE(original.getSIGN_TITLE());
+        target.setSIGN_POEM(original.getSIGN_POEM());
+        target.setSIGN_INTRO(original.getSIGN_INTRO());
+        target.setSIGN_ENTITY_SIGN_CAREER(original.getSIGN_ENTITY_SIGN_CAREER());
+        target.setSIGN_ENTITY_SIGN_FAMILY(original.getSIGN_ENTITY_SIGN_FAMILY());
+        target.setSIGN_ENTITY_SIGN_EMOTION(original.getSIGN_ENTITY_SIGN_EMOTION());
+        target.setSIGN_ENTITY_SIGN_ACADEMIC(original.getSIGN_ENTITY_SIGN_ACADEMIC());
+        target.setSIGN_ENTITY_SIGN_INVEST(original.getSIGN_ENTITY_SIGN_INVEST());
+        target.setSIGN_ENTITY_SIGN_HEALTH(original.getSIGN_ENTITY_SIGN_HEALTH());
+        target.setSIGN_ENTITY_SIGN_SWITCH(original.getSIGN_ENTITY_SIGN_SWITCH());
+        target.setSIGN_ENTITY_SIGN_LAWSUIT(original.getSIGN_ENTITY_SIGN_LAWSUIT());
+        target.setSIGN_ENTITY_SIGN_LOST(original.getSIGN_ENTITY_SIGN_LOST());
+        target.setSIGN_ENTITY_SIGN_TRAVEL(original.getSIGN_ENTITY_SIGN_TRAVEL());
+        target.setSIGN_ENTITY_SIGN_CHILD(original.getSIGN_ENTITY_SIGN_CHILD());
+
+        return target;
     }
 
 }

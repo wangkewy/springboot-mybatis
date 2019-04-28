@@ -18,10 +18,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
@@ -127,7 +127,7 @@ public class PayJsapiController {
         String out_trade_no = "";
         if(state != null && state.length() > 0){
             OrderSign orderSign = orderSignService.findById(Integer.parseInt(state));
-            total_fee = String.valueOf(orderSign.getAmount());
+            total_fee = String.valueOf(orderSign.getAmount().multiply(new BigDecimal(100)).intValue());
             out_trade_no = orderSign.getOrder_id();
         }
 
@@ -191,7 +191,7 @@ public class PayJsapiController {
      * 微信支付成功,微信发送的callback信息,请注意修改订单信息
      * */
     @RequestMapping("/payCallback")
-    public String payCallback (HttpServletRequest request, HttpServletResponse response){
+    public String payCallback (HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes){
         logger.info("payCallback");
         InputStream is = null;
         try {
@@ -206,10 +206,12 @@ public class PayJsapiController {
                     logger.info("outTradeNo : {}, transactionId : {}", outTradeNo, transactionId);
 
                     // 以下是业务处理
-                    Afortune afortune = afortuneService.findByOrderId(outTradeNo);
-                    
-                    logger.info("username : {}, gender : {}, birth : {}",
-                            afortune.getName(), afortune.getGENDER(), afortune.getBIRTH());
+                    OrderSign orderSign = orderSignService.findByOrderId(outTradeNo);
+                    orderSign.setTransaction_id(transactionId);
+                    orderSignService.update(orderSign);
+                    redirectAttributes.addAttribute("ifortuneId", orderSign.getIfortune_id());
+                    logger.info("order_id : {}, amount : {}, ifortuneId : {}",
+                            orderSign.getOrder_id(), orderSign.getAmount(), orderSign.getIfortune_id());
                 }
             }
 
@@ -220,7 +222,7 @@ public class PayJsapiController {
             e.printStackTrace();
         }
 
-        return "bazijpresult";
+        return "redirect:/bazijpresult";
     }
 
 }

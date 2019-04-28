@@ -22,10 +22,24 @@ public class OrderSignService {
     }
 
     /**
+     * 更新订单
+     * */
+    public void update(OrderSign orderSign){
+        orderMapper.updateByPrimaryKey(orderSign);
+    }
+
+    /**
      * 查询订单
      * */
     public OrderSign findById(int id){
         return orderMapper.selectByPrimaryKey(id);
+    }
+
+    /**
+     * 根据订单号查询订单
+     * */
+    public OrderSign findByOrderId(String orderId){
+        return orderMapper.selectByOrderId(orderId);
     }
 
 }

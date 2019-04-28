@@ -27,7 +27,7 @@ public class TimeUtils {
     }
 
     /**
-     * 日期转化 2019年4月24日1时
+     * 日期转化 从2019年4月24日1时 为 20190424080808
      * */
     public static String formatDate(String date){
         date = date.substring(0, date.indexOf("日"));
@@ -49,8 +49,8 @@ public class TimeUtils {
             sbf.append("0");
         }
         sbf.append(day);
-        //时分
-        sbf.append("0808");
+        //时分秒
+        sbf.append("080808");
 
         return sbf.toString();
     }
