@@ -178,25 +178,43 @@
 
     //微信支付入口
     function payWeixin(){
-        if(isWeixin()){
-            console.info('weixin');
-            payWeixinJSAPI();
-        } else {
-            console.info('not weixin');
-            payWeixinH5();
-        }
+        <!--if(isWeixin()){-->
+            <!--console.info('weixin');-->
+            <!--payWeixinJSAPI();-->
+        <!--} else {-->
+            <!--console.info('not weixin');-->
+            <!--payWeixinH5();-->
+        <!--}-->
+         payWeixinH5();
     }
 
     //微信H5支付
     function payWeixinH5(){
-        var url = "/pay/go";
-        $.get(url, function(result){
-            if(result.msg == 'success'){
-                location.href = result.mweb_url;
-            } else {
-                alert("支付失败，请重新支付");
-            }
-        });
+        var url = "/pay/weixinPayWap";
+        var param = {
+            amount:$('#amount').attr('value'),
+            username:$('#username').text(),
+            gender:$('#gender').text(),
+            birthday:$('#birthday').text()
+        };
+        $.post(url,
+               param,
+               function(result){
+                   if(result.msg == 'success'){
+                      location.href = result.mweb_url;
+                   } else {
+                      alert("支付失败，请重新支付");
+                   }
+               }
+        );
+        <!--var url = "/pay/go";-->
+        <!--$.get(url, function(result){-->
+            <!--if(result.msg == 'success'){-->
+                <!--location.href = result.mweb_url;-->
+            <!--} else {-->
+                <!--alert("支付失败，请重新支付");-->
+            <!--}-->
+        <!--});-->
     }
 
     //微信JSAPI支付

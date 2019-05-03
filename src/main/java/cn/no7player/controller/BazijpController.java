@@ -1,7 +1,9 @@
 package cn.no7player.controller;
 
 import cn.no7player.model.Afortune;
+import cn.no7player.model.HongYin;
 import cn.no7player.service.AfortuneService;
+import cn.no7player.service.HongYinService;
 import cn.no7player.util.HttpUtils;
 import cn.no7player.vo.UserForm;
 import com.alibaba.fastjson.JSON;
@@ -34,6 +36,9 @@ public class BazijpController {
 
     @Autowired
     private AfortuneService afortuneService;
+
+    @Autowired
+    private HongYinService hongYinService;
 
     @RequestMapping("/bazijp")
     public String bazijp(Model model){
@@ -101,15 +106,16 @@ public class BazijpController {
         return "bazijpresult";
     }
 
-    @RequestMapping("/bazijporderresult")
+    @RequestMapping("/bazijp_result_hongyin")
     public String bazijpOrderResult(String orderId, Model model){
-        Afortune afortune = afortuneService.findByOrderId(orderId);
-        if(afortune != null){
-            model.addAttribute("afortune", afortune);
-            return "bazijpresult";
-        } else {
+        HongYin hongYin = hongYinService.findByOrderSignId(Integer.valueOf(orderId));
+        hongYin = hongYinService.checkHongYinResult(hongYin);
+        if(hongYin == null){
             return "bazijp404";
         }
+
+        model.addAttribute("hongYin", hongYin);
+        return "bazijpresult_hongyin";
     }
 
     // 解析测算的结果

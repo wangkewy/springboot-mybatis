@@ -11,8 +11,8 @@ public class StringUtils {
         if(amount==null){
             return "";
         }
-        // 金额转化为分为单位
-        String currency =  amount.replaceAll("\\$|\\￥|\\,", "");  //处理包含, ￥ 或者$的金额
+        // 金额转化为分为单位 //处理包含, ￥ 或者$的金额
+        String currency =  amount.replaceAll("\\$|\\￥|\\,", "");
         int index = currency.indexOf(".");
         int length = currency.length();
         Long amLong = 0l;

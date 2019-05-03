@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head>
+    <meta charset="UTF-8"/>
+    <title>2019年运势详批</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta content="yes" name="apple-mobile-web-app-capable"/>
+    <meta content="black" name="apple-mobile-web-app-status-bar-style"/>
+    <meta content="telephone=no" name="format-detection"/>
+    <link rel="shortcut icon" href="/sm/ffsm/statics/ffsm/favicon.ico"/>
+    <link href="/statics/ffsm/bazimf/10010/wap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/statics/ffsm/bazimf/10010/index.css" rel="stylesheet" type="text/css"/>
+    <link href="/statics/ffsm/bazimf/10010/style.min.css" rel="stylesheet" type="text/css"/>
+    <script src="//apps.bdimg.com/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="/statics/ffsm/public/js/require/require.min.js?tm=123" data-main="/statics/ffsm/public/js/common.min.js?tm=123?v=0817"></script>
+</head>
+<body>
+    <div class="container pay">
+        <div class="wrap">
+            <div class="pay-banner">
+                <img src="/statics/ffsm/bazimf/10010/images/pay-banner.png" alt=""/>
+            </div>
+            <div class="look-info">
+                <div class="name-box">
+                    <div class="item">
+                        <p><b>姓名：</b><label th:text="${hongYin.xing}"></label>
+                            <span style="margin-left:20px">性别：<label th:text="${hongYin.sex}"></label></span>
+                        </p>
+                        <p><b>生日：</b><label th:text="${hongYin.birthday}"></label></p>
+                        <p></p>
+                        <p><b>天格：</b><label th:text="${hongYin.tiange}"></label></p>
+                        <p><b>人格：</b><label th:text="${hongYin.renge}"></label></p>
+                        <p><b>地格：</b><label th:text="${hongYin.dige}"></label></p>
+                        <p><b>外格：</b><label th:text="${hongYin.waige}"></label></p>
+                        <p><b>总格：</b><label th:text="${hongYin.zongge}"></label></p>
+                        <p><b>评分：</b><label th:text="${hongYin.pingfen}"></label></p>
+                        <p><b>基础运：</b><label th:text="${hongYin.jichuyun}"></label></p>
+                        <p><b>成功运：</b><label th:text="${hongYin.chenggongyun}"></label></p>
+                        <p><b>社交运：</b><label th:text="${hongYin.shejiaoyun}"></label></p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-box">
+                <p>如有疑问，请联系客服。客服QQ：2198762109</p>
+                <p>客服在线时间：10:00-18:00(周一至周五) </p>
+                <img src="/statics/ffsm/bazimf/10010/images/footer-img.png" alt=""/>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

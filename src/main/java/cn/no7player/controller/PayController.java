@@ -1,13 +1,20 @@
 package cn.no7player.controller;
 
+import cn.no7player.model.HongYin;
+import cn.no7player.model.OrderSign;
+import cn.no7player.service.HongYinService;
+import cn.no7player.service.OrderSignService;
 import cn.no7player.util.*;
+import cn.no7player.util.wenxin.WXPayUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -15,9 +22,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
+import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -44,6 +53,15 @@ public class PayController {
     @Value("${w_createOrderURL}")
     private String createOrderURL;
 
+    @Value("${w_redirect_url}")
+    private String redirectUrl;
+
+    @Autowired
+    private HongYinService hongYinService;
+
+    @Autowired
+    private OrderSignService orderSignService;
+
     @RequestMapping(value = "/go")
     public String go(String oid, String type, Model model, RedirectAttributes redirectAttributes){
         redirectAttributes.addAttribute("subject", "paySubject");
@@ -52,34 +70,64 @@ public class PayController {
         return "redirect:/pay/weixinPayWap";
     }
 
+    /**
+     * 生成订单数据,返回订单号
+     * */
+    public int makeOrderHongYin(String amount, String username, String gender, String birthday){
+        HongYin hongYin = new HongYin();
+        hongYin.setXing(username.substring(0, 1));
+        hongYin.setMing(username.substring(1, username.length()));
+        hongYin.setSex(gender);
+        hongYin.setBirthday(birthday);
+        int hongYinId = hongYinService.save(hongYin);
+        logger.info("hongyin id : {}", hongYinId);
+
+        OrderSign orderSign = new OrderSign();
+        orderSign.setAmount(BigDecimal.valueOf(Double.valueOf(amount)));
+        orderSign.setOrder_id(WXPayUtil.generateOutTradeNo());
+        orderSign.setIfortune_id(hongYinId);
+        orderSign.setCreate_time(new Date());
+        orderSign.setDel_flag(0);
+        int orderSignId = orderSignService.save(orderSign);
+        logger.info("username:{}, gender : {}, orderSignId : {}", username, gender, orderSignId);
+
+        return orderSignId;
+    }
+
     @ResponseBody
     @RequestMapping(value = "/weixinPayWap" ,produces = { "application/json;charset=UTF-8" })
-    public Map<String, String> weixinPayWap(HttpServletRequest request, HttpServletResponse response, ModelMap model) {
+    public Map<String, String> weixinPayWap(String amount, String username, String gender, String birthday,
+            HttpServletRequest request, HttpServletResponse response, ModelMap model) {
+        // 生成订单数据,返回订单ID号
+        int orderSignId = makeOrderHongYin(amount, username, gender, birthday);
+
         Map<String, String> payMap = new HashMap<String, String>();
-        String spbill_create_ip = getIP(request);//生产
+        //生成IP
+        String spbill_create_ip = getIP(request);
         System.out.println("spbill_create_ip="+spbill_create_ip);
-        String scene_info = "{\"h5_info\": {\"type\":\"Wap\",\"wap_url\": \"woniu8.com\",\"wap_name\": \"信息认证\"}}";//我这里是网页入口，app入口参考文档的安卓和ios写法
-        String tradeType = "MWEB";//H5支付标记
-        String MD5 = "MD5";//虽然官方文档不是必须参数，但是不送有时候会验签失败
-        String subject = request.getParameter("subject");//前端上送的支付主题
-        String total_amount = request.getParameter("totalAmount");//前端上送的支付金额
+        //我这里是网页入口，app入口参考文档的安卓和ios写法
+        String scene_info = "{\"h5_info\": {\"type\":\"Wap\",\"wap_url\": \"woniu8.com\",\"wap_name\": \"信息认证\"}}";
+        //H5支付标记
+        String tradeType = "MWEB";
+        //虽然官方文档不是必须参数，但是不送有时候会验签失败
+        String MD5 = "MD5";
+        //前端上送的支付主题
+        String subject = request.getParameter("八字运势");
+        //前端上送的支付金额 金额转化为分为单位 微信支付以分为单位
+        String finalmoney = StringUtils.getMoney(amount);
         String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
-        //金额转化为分为单位 微信支付以分为单位
-        String finalmoney = StringUtils.getMoney(total_amount);
         int randomNum  = (int) (Math.random() * 1999+5000);
-        String out_trade_no = TimeUtils.getSysTime("yyyyMMddHHmmss") + randomNum;
+        String outTradeNo = TimeUtils.getSysTime("yyyyMMddHHmmss") + randomNum;
         //随机数
-        String nonce_str= MD5Utils.getMessageDigest(String.valueOf(new Random().nextInt(10000)).getBytes());
-        //回调地址
-//        String notify_url = "xm.woniu8.com/pay/notify";
+        String nonceStr= MD5Utils.getMessageDigest(String.valueOf(new Random().nextInt(10000)).getBytes());
         //签名数据
         StringBuilder sb = new StringBuilder();
         sb.append("appid="+APPID);
         sb.append("&body="+subject);
         sb.append("&mch_id="+MERID);
-        sb.append("&nonce_str="+nonce_str);
+        sb.append("&nonce_str="+nonceStr);
         sb.append("&notify_url="+notify_url);
-        sb.append("&out_trade_no="+out_trade_no);
+        sb.append("&out_trade_no="+outTradeNo);
         sb.append("&scene_info="+scene_info);
         sb.append("&sign_type="+"MD5");
         sb.append("&spbill_create_ip="+spbill_create_ip);
@@ -88,17 +136,17 @@ public class PayController {
 //        sb.append("&key="+SIGNKEY);
         System.out.println("sb="+sb);
         //签名MD5加密
-        String sign = "把sb.toString()做MD5操作并且toUpperCase()一下,至于怎么MD5,百度一下或者看官方文档";
+        String sign = "把sb.toString() 做MD5操作并且toUpperCase()一下,至于怎么MD5,百度一下或者看官方文档";
         System.out.println("sign="+sign);
         logger.info("签名数据:"+sign);
         //封装xml报文
         String xml="<xml>"+
                 "<appid>"+ APPID+"</appid>"+
                 "<mch_id>"+ MERID+"</mch_id>"+
-                "<nonce_str>"+nonce_str+"</nonce_str>"+
+                "<nonce_str>"+nonceStr+"</nonce_str>"+
                 "<sign>"+sign+"</sign>"+
                 "<body>"+subject+"</body>"+//
-                "<out_trade_no>"+out_trade_no+"</out_trade_no>"+
+                "<out_trade_no>"+outTradeNo+"</out_trade_no>"+
                 "<total_fee>"+finalmoney+"</total_fee>"+//
                 "<trade_type>"+tradeType+"</trade_type>"+
                 "<notify_url>"+notify_url+"</notify_url>"+
@@ -107,17 +155,17 @@ public class PayController {
                 "<spbill_create_ip>"+spbill_create_ip+"</spbill_create_ip>"+
                 "</xml>";
 
-//        String createOrderURL = "https://api.mch.weixin.qq.com/pay/unifiedorder";//微信统一下单接口
-        String mweb_url = "";
-        Map map = new HashMap();
+        String mwebUrl = "";
         try {
             //预下单 获取接口地址
+            Map map = new HashMap();
             map = WebUtils.getMwebUrl(createOrderURL, xml);
-            String return_code  = (String) map.get("return_code");
-            String return_msg = (String) map.get("return_msg");
-            if("SUCCESS".equals(return_code) && "OK".equals(return_msg)){
-                mweb_url = (String) map.get("mweb_url");//调微信支付接口地址
-                System.out.println("mweb_url="+mweb_url);
+            String returnCode  = (String) map.get("return_code");
+            String returnMsg = (String) map.get("return_msg");
+            if("SUCCESS".equals(returnCode) && "OK".equals(returnMsg)){
+                //调微信支付接口地址
+                mwebUrl = (String) map.get("mweb_url");
+                System.out.println("mweb_url="+mwebUrl);
             }else{
                 System.out.println("统一支付接口获取预支付订单出错");
                 payMap.put("msg", "支付错误");
@@ -129,21 +177,17 @@ public class PayController {
             return payMap;
         }
 
-        //支付完返回浏览器跳转的地址，如跳到查看订单页面
-//        String redirect_url = "http://xm.woniu8.com/order/index";
-//        try{
-//            String redirect_urlEncode =  URLEncoder.encode(redirect_url,"utf-8");//对上面地址urlencode
-//            mweb_url = mweb_url + "&redirect_url=" + redirect_urlEncode;//拼接返回地址
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
-//        result.put("mwebUrl",mweb_url);
-
-        //添加微信支付记录日志等操作
-
+        //支付完返回浏览器跳转的地址，回到结果页面
+        try{
+            //encode地址，再返回拼接地址
+            mwebUrl = mwebUrl + "&redirect_url=" + URLEncoder.encode(redirectUrl + "&orderId=" + orderSignId,"utf-8");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         payMap.put("msg", "success");
-        payMap.put("mweb_url", mweb_url);
+        payMap.put("mweb_url", mwebUrl);
+        logger.info("mweb_url : {}", mwebUrl);
 
         return payMap;
     }
@@ -159,8 +203,9 @@ public class PayController {
             StringBuffer buf = new StringBuffer();
             for (int i = 0; i < ipAddress.length(); i++) {
                 char ch = ipAddress.charAt(i);
-                if (ch != ' ')
+                if (ch != ' '){
                     buf.append(ch);
+                }
             }
             ipAddress = buf.toString();
             System.out.println("getIp x-forwarded-for");
@@ -208,7 +253,9 @@ public class PayController {
      * 回调
      * */
     @RequestMapping(value = "/notify")
+    @ResponseBody
     public void weixinPayNotify(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        logger.info("weixin pay notify");
         BufferedReader reader = request.getReader();
         String line = "";
         Map map = new HashMap();

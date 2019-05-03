@@ -93,7 +93,8 @@ public class PayJsapiController {
             sb.append("&redirect_uri=").append(URLEncoder.encode(redirect_uri, "UTF-8"));
             sb.append("&response_type=code");
             sb.append("&scope=").append("snsapi_base");
-            sb.append("&state=").append(String.valueOf(orderSignId)); //带自己的参数过去
+            //带自己的订单参数
+            sb.append("&state=").append(String.valueOf(orderSignId));
             sb.append("#wechat_redirect");
         } catch (Exception e){
             e.printStackTrace();
@@ -137,8 +138,10 @@ public class PayJsapiController {
             String param = "appid=" + appid + "&secret=" + appsecret + "&code="+code+"&grant_type=authorization_code";
             //向微信服务器发送get请求获取openIdStr
             String openIdStr = HttpRequest.sendGet(getopenid_url, param);
-            JSONObject json = JSONObject.parseObject(openIdStr);//转成Json格式
-            String openId = json.getString("openid");//获取openId
+            //转成Json格式
+            JSONObject json = JSONObject.parseObject(openIdStr);
+            //获取openId
+            String openId = json.getString("openid");
             System.out.println("openId :" + openId);
 
             //拼接统一下单地址参数
@@ -151,20 +154,25 @@ public class PayJsapiController {
             paraMap.put("mch_id", mch_id);
             paraMap.put("nonce_str", WXPayUtil.generateNonceStr());
             paraMap.put("openid", openId);
-            paraMap.put("out_trade_no", out_trade_no);//订单号
+            //订单号
+            paraMap.put("out_trade_no", out_trade_no);
             paraMap.put("spbill_create_ip", spbill_create_ip);
             paraMap.put("total_fee", total_fee);
             paraMap.put("trade_type", "JSAPI");
-            paraMap.put("notify_url", notify_url);// 此路径是微信服务器调用支付结果通知路径随意写
+            // 此路径是微信服务器调用支付结果通知路径随意写
+            paraMap.put("notify_url", notify_url);
             String sign = WXPayUtil.generateSignature(paraMap, paternerKey);
             paraMap.put("sign", sign);
-            String xml = WXPayUtil.mapToXml(paraMap);//将所有参数(map)转xml格式
+            //将所有参数(map)转xml格式
+            String xml = WXPayUtil.mapToXml(paraMap);
             System.out.println("xml : " + xml);
             // 统一下单 https://api.mch.weixin.qq.com/pay/unifiedorder
-            String xmlStr = HttpRequest.sendPost(createOrderURL, xml);//发送post请求"统一下单接口"返回预支付id:prepay_id
+            //发送post请求"统一下单接口"返回预支付id:prepay_id
+            String xmlStr = HttpRequest.sendPost(createOrderURL, xml);
             System.out.println("xmlStrl : " + xmlStr);
             //以下内容是返回前端页面的json数据
-            String prepay_id = "";//预支付id
+            //预支付id
+            String prepay_id = "";
             if (xmlStr.indexOf("SUCCESS") != -1) {
                 Map<String, String> map = WXPayUtil.xmlToMap(xmlStr);
                 prepay_id = (String) map.get("prepay_id");

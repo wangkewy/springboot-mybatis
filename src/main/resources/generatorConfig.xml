@@ -26,13 +26,19 @@
             <property name="enableSubPackages" value="true" />
         </javaClientGenerator>
 
-        <table schema="facai" tableName="ifortune" domainObjectName="Afortune"
-               enableCountByExample="false" enableUpdateByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false"
-               selectByExampleQueryId="false">
-            <property name="useActualColumnNames" value="true"/>
-        </table>
-        <table schema="facai" tableName="order_sign" domainObjectName="OrderSign"
+        <!--<table schema="facai" tableName="ifortune" domainObjectName="Afortune"-->
+               <!--enableCountByExample="false" enableUpdateByExample="false"-->
+               <!--enableDeleteByExample="false" enableSelectByExample="false"-->
+               <!--selectByExampleQueryId="false">-->
+            <!--<property name="useActualColumnNames" value="true"/>-->
+        <!--</table>-->
+        <!--<table schema="facai" tableName="order_sign" domainObjectName="OrderSign"-->
+               <!--enableCountByExample="false" enableUpdateByExample="false"-->
+               <!--enableDeleteByExample="false" enableSelectByExample="false"-->
+               <!--selectByExampleQueryId="false">-->
+            <!--<property name="useActualColumnNames" value="true"/>-->
+        <!--</table>-->
+        <table schema="facai" tableName="hongyin" domainObjectName="HongYin"
                enableCountByExample="false" enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
                selectByExampleQueryId="false">

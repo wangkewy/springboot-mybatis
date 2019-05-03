@@ -1,5 +1,6 @@
-package cn.no7player.util;
+package cn.no7player.util.demo;
 
+import cn.no7player.util.HttpUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 
