@@ -22,6 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.URLEncoder;
@@ -42,13 +43,16 @@ public class PayController {
     private Logger logger = LoggerFactory.getLogger(PayController.class);
 
     @Value("${w_APPID}")
-    private String APPID;
+    private String appId;
 
     @Value("${w_MERID}")
-    private String MERID;
+    private String merId;
+
+    @Value("${w_paternerKey}")
+    public String paternerKey;
 
     @Value("${w_notify_url}")
-    private String notify_url;
+    private String notifyUrl;
 
     @Value("${w_createOrderURL}")
     private String createOrderURL;
@@ -61,14 +65,6 @@ public class PayController {
 
     @Autowired
     private OrderSignService orderSignService;
-
-    @RequestMapping(value = "/go")
-    public String go(String oid, String type, Model model, RedirectAttributes redirectAttributes){
-        redirectAttributes.addAttribute("subject", "paySubject");
-        redirectAttributes.addAttribute("totalAmount", "0.01");
-
-        return "redirect:/pay/weixinPayWap";
-    }
 
     /**
      * 生成订单数据,返回订单号
@@ -96,106 +92,91 @@ public class PayController {
 
     @ResponseBody
     @RequestMapping(value = "/weixinPayWap" ,produces = { "application/json;charset=UTF-8" })
-    public Map<String, String> weixinPayWap(String amount, String username, String gender, String birthday,
-            HttpServletRequest request, HttpServletResponse response, ModelMap model) {
+    public Map<String, String> weixinPayWap(String amount, String username, String gender, String birthday, String subject,
+            HttpServletRequest request) throws Exception {
         // 生成订单数据,返回订单ID号
         int orderSignId = makeOrderHongYin(amount, username, gender, birthday);
 
-        Map<String, String> payMap = new HashMap<String, String>();
         //生成IP
-        String spbill_create_ip = getIP(request);
-        System.out.println("spbill_create_ip="+spbill_create_ip);
-        //我这里是网页入口，app入口参考文档的安卓和ios写法
-        String scene_info = "{\"h5_info\": {\"type\":\"Wap\",\"wap_url\": \"woniu8.com\",\"wap_name\": \"信息认证\"}}";
+        String spbillCreateIp = getIP(request);
+        logger.info("spbill_create_ip: {}", spbillCreateIp);
+        //网页入口内容
+        String sceneInfo = "{\"h5_info\": {\"type\":\"Wap\",\"wap_url\": \"http://www.coinus.cn\",\"wap_name\": \"2019年运势详批\"}}";
         //H5支付标记
         String tradeType = "MWEB";
         //虽然官方文档不是必须参数，但是不送有时候会验签失败
         String MD5 = "MD5";
-        //前端上送的支付主题
-        String subject = request.getParameter("八字运势");
-        //前端上送的支付金额 金额转化为分为单位 微信支付以分为单位
-        String finalmoney = StringUtils.getMoney(amount);
-        String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
+        //支付金额转化为分为单位 微信支付以分为单位
+        String finalMoney = StringUtils.getMoney(amount);
         int randomNum  = (int) (Math.random() * 1999+5000);
         String outTradeNo = TimeUtils.getSysTime("yyyyMMddHHmmss") + randomNum;
         //随机数
         String nonceStr= MD5Utils.getMessageDigest(String.valueOf(new Random().nextInt(10000)).getBytes());
-        //签名数据
-        StringBuilder sb = new StringBuilder();
-        sb.append("appid="+APPID);
-        sb.append("&body="+subject);
-        sb.append("&mch_id="+MERID);
-        sb.append("&nonce_str="+nonceStr);
-        sb.append("&notify_url="+notify_url);
-        sb.append("&out_trade_no="+outTradeNo);
-        sb.append("&scene_info="+scene_info);
-        sb.append("&sign_type="+"MD5");
-        sb.append("&spbill_create_ip="+spbill_create_ip);
-        sb.append("&total_fee="+finalmoney);
-        sb.append("&trade_type="+tradeType);
-//        sb.append("&key="+SIGNKEY);
-        System.out.println("sb="+sb);
-        //签名MD5加密
-        String sign = "把sb.toString() 做MD5操作并且toUpperCase()一下,至于怎么MD5,百度一下或者看官方文档";
-        System.out.println("sign="+sign);
-        logger.info("签名数据:"+sign);
+        //拼接统一下单地址参数
+        Map<String, String> paraMap = new HashMap<String, String>();
+        paraMap.put("appid", appId);
+        paraMap.put("body", subject);
+        paraMap.put("mch_id", merId);
+        paraMap.put("nonce_str", nonceStr);
+        paraMap.put("notify_url", notifyUrl);
+        paraMap.put("out_trade_no", outTradeNo);
+        paraMap.put("scene_info", sceneInfo);
+        paraMap.put("sign_type", MD5);
+        paraMap.put("spbill_create_ip", spbillCreateIp);
+        paraMap.put("total_fee", finalMoney);
+        paraMap.put("trade_type", tradeType);
+        String sign = WXPayUtil.generateSignature(paraMap, paternerKey);
+        logger.info("MD签名后sign :"+sign);
         //封装xml报文
         String xml="<xml>"+
-                "<appid>"+ APPID+"</appid>"+
-                "<mch_id>"+ MERID+"</mch_id>"+
-                "<nonce_str>"+nonceStr+"</nonce_str>"+
-                "<sign>"+sign+"</sign>"+
-                "<body>"+subject+"</body>"+//
-                "<out_trade_no>"+outTradeNo+"</out_trade_no>"+
-                "<total_fee>"+finalmoney+"</total_fee>"+//
-                "<trade_type>"+tradeType+"</trade_type>"+
-                "<notify_url>"+notify_url+"</notify_url>"+
-                "<sign_type>MD5</sign_type>"+
-                "<scene_info>"+scene_info+"</scene_info>"+
-                "<spbill_create_ip>"+spbill_create_ip+"</spbill_create_ip>"+
+                "<appid>"+ appId +"</appid>"+
+                "<mch_id>"+ merId +"</mch_id>"+
+                "<nonce_str>"+ nonceStr +"</nonce_str>"+
+                "<sign>"+ sign +"</sign>"+
+                "<body>"+ subject +"</body>"+//
+                "<out_trade_no>"+ outTradeNo +"</out_trade_no>"+
+                "<total_fee>"+ finalMoney +"</total_fee>"+//
+                "<trade_type>"+ tradeType +"</trade_type>"+
+                "<notify_url>"+ notifyUrl +"</notify_url>"+
+                "<sign_type>"+ MD5 +"</sign_type>"+
+                "<scene_info>"+ sceneInfo +"</scene_info>"+
+                "<spbill_create_ip>"+ spbillCreateIp +"</spbill_create_ip>"+
                 "</xml>";
-
         String mwebUrl = "";
+        Map<String, String> payMap = new HashMap<String, String>();
         try {
             //预下单 获取接口地址
-            Map map = new HashMap();
-            map = WebUtils.getMwebUrl(createOrderURL, xml);
+            Map map = WebUtils.getMwebUrl(createOrderURL, xml);
             String returnCode  = (String) map.get("return_code");
             String returnMsg = (String) map.get("return_msg");
             if("SUCCESS".equals(returnCode) && "OK".equals(returnMsg)){
                 //调微信支付接口地址
                 mwebUrl = (String) map.get("mweb_url");
-                System.out.println("mweb_url="+mwebUrl);
+                logger.info("mweb_url: {}", mwebUrl);
+                //支付完返回浏览器跳转的地址，回到结果页面 encode地址，再返回拼接地址
+                mwebUrl = mwebUrl + "&redirect_url=" + URLEncoder.encode(redirectUrl + "?orderId=" + orderSignId,"utf-8");
             }else{
-                System.out.println("统一支付接口获取预支付订单出错");
+                logger.info("统一支付接口获取预支付订单出错");
                 payMap.put("msg", "支付错误");
                 return payMap;
             }
         } catch (Exception e) {
-            System.out.println("统一支付接口获取预支付订单出错");
+            logger.info("统一支付接口获取预支付订单出错");
             payMap.put("msg", "支付错误");
             return payMap;
         }
 
-        //支付完返回浏览器跳转的地址，回到结果页面
-        try{
-            //encode地址，再返回拼接地址
-            mwebUrl = mwebUrl + "&redirect_url=" + URLEncoder.encode(redirectUrl + "&orderId=" + orderSignId,"utf-8");
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
         payMap.put("msg", "success");
         payMap.put("mweb_url", mwebUrl);
-        logger.info("mweb_url : {}", mwebUrl);
+        logger.info("last mweb_url: {}", mwebUrl);
 
         return payMap;
     }
 
     /**
      * 获取用户实际ip,有nginx代理的情况
-     * @param request
-     * @return
+     * @param request HttpServletRequest
+     * @return String
      */
     public String getIP(HttpServletRequest request) {
         String ipAddress = request.getHeader("x-forwarded-for");
@@ -254,33 +235,41 @@ public class PayController {
      * */
     @RequestMapping(value = "/notify")
     @ResponseBody
-    public void weixinPayNotify(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        logger.info("weixin pay notify");
-        BufferedReader reader = request.getReader();
-        String line = "";
-        Map map = new HashMap();
-        String xml = "<xml><return_code><![CDATA[FAIL]]></xml>";
-        JSONObject dataInfo = new JSONObject();
-        StringBuffer inputString = new StringBuffer();
-        while ((line = reader.readLine()) != null) {
-            inputString.append(line);
+    public String weixinPayNotify(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        logger.info("weixin H5 pay notify");
+        String result = "";
+        try {
+            //获取请求的流信息(这里是微信发的xml格式所有只能使用流来读)
+            InputStream is = request.getInputStream();
+            String xml = WXPayUtil.inputStream2String(is, "UTF-8");
+            logger.info("weixin request xml: {}", xml);
+            //将微信发的xml转map
+            Map<String, String> notifyMap = WXPayUtil.xmlToMap(xml);
+            if(notifyMap.get("return_code").equals("SUCCESS")){
+                if(notifyMap.get("result_code").equals("SUCCESS")){
+                    //商户订单号
+                    String outTradeNo = notifyMap.get("out_trade_no");
+                    //微信支付订单号
+                    String transactionId = notifyMap.get("transaction_id");
+                    logger.info("outTradeNo : {}, transactionId : {}", outTradeNo, transactionId);
+
+                    // 以下是业务处理，更新微信订单信息
+                    OrderSign orderSign = orderSignService.findByOrderId(outTradeNo);
+                    orderSign.setTransaction_id(transactionId);
+                    orderSignService.update(orderSign);
+                    logger.info("order_id : {}, amount : {}, ifortuneId : {}",
+                                orderSign.getOrder_id(), orderSign.getAmount(), orderSign.getIfortune_id());
+
+                    //告诉微信服务器收到信息了，不要在调用回调了，这里很重要回复微信服务器信息用流发送一个xml即可
+                    result = "<xml><return_code><![CDATA[SUCCESS]]></return_code></xml>";
+                }
+            }
+            is.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        request.getReader().close();
-        System.out.println("----接收到的报文---"+inputString.toString());
-        if(inputString.toString().length()>0){
-            map = XMLUtils.parseXmlToList(inputString.toString());
-        }else{
-            System.out.println("接受微信报文为空");
-        }
-        System.out.println("map="+map);
-        if(map!=null && "SUCCESS".equals(map.get("result_code"))){
-            //成功的业务。。。
-            xml = "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>";
-        }else{
-            //失败的业务。。。
-        }
-        //告诉微信端已经确认支付成功
-        response.getWriter().write(xml);
+
+        return result;
     }
 
 }

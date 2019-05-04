@@ -205,14 +205,18 @@ public class PayJsapiController {
         InputStream is = null;
         String result = "";
         try {
-            is = request.getInputStream();//获取请求的流信息(这里是微信发的xml格式所有只能使用流来读)
+            //获取请求的流信息(这里是微信发的xml格式所有只能使用流来读)
+            is = request.getInputStream();
             String xml = WXPayUtil.inputStream2String(is, "UTF-8");
-            Map<String, String> notifyMap = WXPayUtil.xmlToMap(xml);//将微信发的xml转map
+            //将微信发的xml转map
+            Map<String, String> notifyMap = WXPayUtil.xmlToMap(xml);
 
             if(notifyMap.get("return_code").equals("SUCCESS")){
                 if(notifyMap.get("result_code").equals("SUCCESS")){
-                    String outTradeNo = notifyMap.get("out_trade_no");//商户订单号
-                    String transactionId = notifyMap.get("transaction_id");//微信支付订单号
+                    //商户订单号
+                    String outTradeNo = notifyMap.get("out_trade_no");
+                    //微信支付订单号
+                    String transactionId = notifyMap.get("transaction_id");
                     logger.info("outTradeNo : {}, transactionId : {}", outTradeNo, transactionId);
 
                     // 以下是业务处理
@@ -233,7 +237,6 @@ public class PayJsapiController {
         }
 
         return result;
-//        return "redirect:/bazijpresult";
     }
 
 }
