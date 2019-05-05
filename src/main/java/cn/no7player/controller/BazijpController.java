@@ -109,9 +109,23 @@ public class BazijpController {
     @RequestMapping("/bazijp_result_hongyin")
     public String bazijpOrderResult(String orderId, Model model){
         HongYin hongYin = hongYinService.findByOrderSignId(Integer.valueOf(orderId));
-        hongYin = hongYinService.checkHongYinResult(hongYin);
         if(hongYin == null){
             return "bazijp404";
+        }
+
+        int flag = 0;
+        while(flag < 6){
+            logger.info("flag: {}", flag);
+            if(StringUtils.isNotBlank(hongYin.getZongge())){
+                break;
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            hongYin = hongYinService.findByOrderSignId(Integer.valueOf(orderId));
+            flag++;
         }
 
         model.addAttribute("hongYin", hongYin);

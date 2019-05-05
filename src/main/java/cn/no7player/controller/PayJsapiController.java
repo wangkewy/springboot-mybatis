@@ -2,8 +2,10 @@ package cn.no7player.controller;
 
 import cn.no7player.dto.ConsumerDTO;
 import cn.no7player.model.Afortune;
+import cn.no7player.model.HongYin;
 import cn.no7player.model.OrderSign;
 import cn.no7player.service.AfortuneService;
+import cn.no7player.service.HongYinService;
 import cn.no7player.service.OrderSignService;
 import cn.no7player.util.IPUtils;
 import cn.no7player.util.TimeUtils;
@@ -46,55 +48,41 @@ public class PayJsapiController {
     public String appsecret;
 
     @Value("${j_mch_id}")
-    public String mch_id;
+    public String mchId;
 
     @Value("${j_paternerKey}")
     public String paternerKey;
 
     @Value("${j_redirect_uri}")
-    public String redirect_uri;
+    public String redirectUri;
 
     @Value("${j_createOrderURL}")
     public String createOrderURL;
 
     @Value("${j_notify_url}")
-    public String notify_url;
-
-    @Autowired
-    private AfortuneService afortuneService;
+    public String notifyUrl;
 
     @Autowired
     private OrderSignService orderSignService;
 
+    @Autowired
+    private HongYinService hongYinService;
+
     @RequestMapping("/payWX")
     @ResponseBody
-    public String payWX(String amount, String username, String gender, String birthday, Model model){
-        Afortune afortune = new Afortune();
-        afortune.setName(username);
-        afortune.setFIRT_NAME(username.substring(0, 1));
-        afortune.setLAST_NAME(username.substring(1, username.length()));
-        afortune.setGENDER(gender);
-        afortune.setBIRTH(TimeUtils.formatDate(birthday));
-        int afortuneId = afortuneService.save(afortune);
-
-        OrderSign orderSign = new OrderSign();
-        orderSign.setAmount(BigDecimal.valueOf(Double.valueOf(amount)));
-        orderSign.setOrder_id(WXPayUtil.generateOutTradeNo());
-        orderSign.setIfortune_id(afortuneId);
-        orderSign.setCreate_time(new Date());
-        orderSign.setDel_flag(0);
-        int orderSignId = orderSignService.save(orderSign);
-        logger.info("username : {}, gender : {}, orderSignId : {}", username, gender, orderSignId);
+    public String payWX(String amount, String username, String gender, String birthday, String payType){
+        //生成订单数据
+        OrderSign orderSign = orderSignService.makeOrderHongYin(amount, username, gender, birthday, payType);
 
         StringBuilder sb = new StringBuilder();
         try{
             sb.append("https://open.weixin.qq.com/connect/oauth2/authorize?");
             sb.append("appid=").append(appid);
-            sb.append("&redirect_uri=").append(URLEncoder.encode(redirect_uri, "UTF-8"));
+            sb.append("&redirect_uri=").append(URLEncoder.encode(redirectUri, "UTF-8"));
             sb.append("&response_type=code");
             sb.append("&scope=").append("snsapi_base");
             //带自己的订单参数
-            sb.append("&state=").append(String.valueOf(orderSignId));
+            sb.append("&state=").append(String.valueOf(orderSign.getId()));
             sb.append("#wechat_redirect");
         } catch (Exception e){
             e.printStackTrace();
@@ -122,70 +110,69 @@ public class PayJsapiController {
      */
     @RequestMapping(value="/payJSAPI", method = RequestMethod.GET)
     @ResponseBody
-    public Map payJSAPI(HttpServletRequest request, String code, String state, Model model) {
+    public Map payJSAPI(HttpServletRequest request, String code, String state) {
         logger.info("payJSAPI code = {}, state = {}", code, state);
-        String total_fee = "0.01";
-        String out_trade_no = "";
+        String totalFee = "0.01";
+        String outTradeNo = "";
         if(state != null && state.length() > 0){
             OrderSign orderSign = orderSignService.findById(Integer.parseInt(state));
-            total_fee = String.valueOf(orderSign.getAmount().multiply(new BigDecimal(100)).intValue());
-            out_trade_no = orderSign.getOrder_id();
+            totalFee = String.valueOf(orderSign.getAmount().multiply(new BigDecimal(100)).intValue());
+            outTradeNo = orderSign.getOrder_id();
         }
 
         try {
             //页面获取openId接口
-            String getopenid_url = "https://api.weixin.qq.com/sns/oauth2/access_token";
+            String getOpenidUrl = "https://api.weixin.qq.com/sns/oauth2/access_token";
             String param = "appid=" + appid + "&secret=" + appsecret + "&code="+code+"&grant_type=authorization_code";
             //向微信服务器发送get请求获取openIdStr
-            String openIdStr = HttpRequest.sendGet(getopenid_url, param);
+            String openIdStr = HttpRequest.sendGet(getOpenidUrl, param);
             //转成Json格式
             JSONObject json = JSONObject.parseObject(openIdStr);
             //获取openId
             String openId = json.getString("openid");
-            System.out.println("openId :" + openId);
+            logger.info("openId: {}", openId);
 
             //拼接统一下单地址参数
             Map<String, String> paraMap = new HashMap<String, String>();
-            //获取请求ip地址
-            String spbill_create_ip = IPUtils.getIP(request);
-
             paraMap.put("appid", appid);
-            paraMap.put("body", "bazi");
-            paraMap.put("mch_id", mch_id);
+            paraMap.put("body", "运势详批-姓名测算");
+            paraMap.put("mch_id", mchId);
             paraMap.put("nonce_str", WXPayUtil.generateNonceStr());
             paraMap.put("openid", openId);
             //订单号
-            paraMap.put("out_trade_no", out_trade_no);
-            paraMap.put("spbill_create_ip", spbill_create_ip);
-            paraMap.put("total_fee", total_fee);
+            paraMap.put("out_trade_no", outTradeNo);
+            //获取请求ip地址
+            String spbillCreateIp = IPUtils.getIP(request);
+            paraMap.put("spbill_create_ip", spbillCreateIp);
+            paraMap.put("total_fee", totalFee);
             paraMap.put("trade_type", "JSAPI");
-            // 此路径是微信服务器调用支付结果通知路径随意写
-            paraMap.put("notify_url", notify_url);
+            // 微信服务器调用支付结果通知路径
+            paraMap.put("notify_url", notifyUrl);
             String sign = WXPayUtil.generateSignature(paraMap, paternerKey);
             paraMap.put("sign", sign);
             //将所有参数(map)转xml格式
             String xml = WXPayUtil.mapToXml(paraMap);
-            System.out.println("xml : " + xml);
+            logger.info("xml: {}", xml);
             // 统一下单 https://api.mch.weixin.qq.com/pay/unifiedorder
             //发送post请求"统一下单接口"返回预支付id:prepay_id
             String xmlStr = HttpRequest.sendPost(createOrderURL, xml);
-            System.out.println("xmlStrl : " + xmlStr);
+            logger.info("xmlStrl: {}", xmlStr);
             //以下内容是返回前端页面的json数据
             //预支付id
-            String prepay_id = "";
+            String prepayId = "";
             if (xmlStr.indexOf("SUCCESS") != -1) {
                 Map<String, String> map = WXPayUtil.xmlToMap(xmlStr);
-                prepay_id = (String) map.get("prepay_id");
+                prepayId = (String) map.get("prepay_id");
             }
             Map<String, String> payMap = new HashMap<String, String>();
             payMap.put("appId", appid);
             payMap.put("timeStamp", WXPayUtil.getCurrentTimestamp()+"");
             payMap.put("nonceStr", WXPayUtil.generateNonceStr());
             payMap.put("signType", "MD5");
-            payMap.put("package", "prepay_id=" + prepay_id);
+            payMap.put("package", "prepay_id=" + prepayId);
             String paySign = WXPayUtil.generateSignature(payMap, paternerKey);
             payMap.put("paySign", paySign);
-            logger.info("prepay_id : " + prepay_id);
+            logger.info("prepay_id : " + prepayId);
             logger.info("paySign : " + paySign);
             return payMap;
         } catch (Exception e) {
@@ -200,7 +187,7 @@ public class PayJsapiController {
      * */
     @RequestMapping("/payCallback")
     @ResponseBody
-    public String payCallback (HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes){
+    public String payCallback (HttpServletRequest request, HttpServletResponse response){
         logger.info("payCallback");
         InputStream is = null;
         String result = "";
@@ -213,22 +200,28 @@ public class PayJsapiController {
 
             if(notifyMap.get("return_code").equals("SUCCESS")){
                 if(notifyMap.get("result_code").equals("SUCCESS")){
+                    //告诉微信服务器收到信息了，不要在调用回调action了========这里很重要回复微信服务器信息用流发送一个xml即可
+                    result = "<xml><return_code><![CDATA[SUCCESS]]></return_code></xml>";
+
+                    // 以下是业务处理，更新微信订单信息
                     //商户订单号
                     String outTradeNo = notifyMap.get("out_trade_no");
                     //微信支付订单号
                     String transactionId = notifyMap.get("transaction_id");
                     logger.info("outTradeNo : {}, transactionId : {}", outTradeNo, transactionId);
-
-                    // 以下是业务处理
+                    //更新订单信息
                     OrderSign orderSign = orderSignService.findByOrderId(outTradeNo);
-                    orderSign.setTransaction_id(transactionId);
-                    orderSignService.update(orderSign);
-                    redirectAttributes.addAttribute("ifortuneId", orderSign.getIfortune_id());
-                    logger.info("order_id : {}, amount : {}, ifortuneId : {}",
-                            orderSign.getOrder_id(), orderSign.getAmount(), orderSign.getIfortune_id());
-
-                    //告诉微信服务器收到信息了，不要在调用回调action了========这里很重要回复微信服务器信息用流发送一个xml即可
-                    result = "<xml><return_code><![CDATA[SUCCESS]]></return_code></xml>";
+                    if(orderSign != null){
+                        orderSign.setTransaction_id(transactionId);
+                        orderSignService.update(orderSign);
+                        logger.info("order_id : {}, amount : {}, ifortuneId : {}",
+                                orderSign.getOrder_id(), orderSign.getAmount(), orderSign.getIfortune_id());
+                        //调用姓名测算
+                        HongYin hongYin = hongYinService.findByOrderSignId(orderSign.getId());
+                        logger.info("hongyin before: {}", hongYin);
+                        hongYin = hongYinService.checkHongYinResult(hongYin);
+                        logger.info("hongyin check: {}", hongYin);
+                    }
                 }
             }
             is.close();

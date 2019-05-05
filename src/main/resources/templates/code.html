@@ -20,10 +20,8 @@
         var code = $('#code').text();
         var state = $('#state').text();
         if(code){
-            console.log("code : " + code + "; state : " + state);
             var url = "/pay_jsapi/payJSAPI?code=" + code + "&state=" + state;
 	  	    $.get(url,function(result) {
-                console.log("result appId : " + result.appId);
   				appId = result.appId;
 				timeStamp = result.timeStamp;
 				nonceStr = result.nonceStr;
@@ -62,7 +60,7 @@
                  console.log('支付成功');
                  //支付成功后跳转的页面
                  var state = $('#state').text();
-                 location.href = '/bazijpresult?orderSignId=' + state;
+                 location.href = '/bazijp_result_hongyin?orderId=' + state;
              }else if(res.err_msg == "get_brand_wcpay_request:cancel"){
           	     console.log('支付取消');
              }else if(res.err_msg == "get_brand_wcpay_request:fail"){

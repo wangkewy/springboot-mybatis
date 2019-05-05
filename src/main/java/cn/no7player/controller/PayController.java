@@ -66,36 +66,13 @@ public class PayController {
     @Autowired
     private OrderSignService orderSignService;
 
-    /**
-     * 生成订单数据,返回订单号
-     * */
-    public int makeOrderHongYin(String amount, String username, String gender, String birthday){
-        HongYin hongYin = new HongYin();
-        hongYin.setXing(username.substring(0, 1));
-        hongYin.setMing(username.substring(1, username.length()));
-        hongYin.setSex(gender);
-        hongYin.setBirthday(birthday);
-        int hongYinId = hongYinService.save(hongYin);
-        logger.info("hongyin id : {}", hongYinId);
-
-        OrderSign orderSign = new OrderSign();
-        orderSign.setAmount(BigDecimal.valueOf(Double.valueOf(amount)));
-        orderSign.setOrder_id(WXPayUtil.generateOutTradeNo());
-        orderSign.setIfortune_id(hongYinId);
-        orderSign.setCreate_time(new Date());
-        orderSign.setDel_flag(0);
-        int orderSignId = orderSignService.save(orderSign);
-        logger.info("username:{}, gender : {}, orderSignId : {}", username, gender, orderSignId);
-
-        return orderSignId;
-    }
-
     @ResponseBody
     @RequestMapping(value = "/weixinPayWap" ,produces = { "application/json;charset=UTF-8" })
-    public Map<String, String> weixinPayWap(String amount, String username, String gender, String birthday, String subject,
-            HttpServletRequest request) throws Exception {
+    public Map<String, String> weixinPayWap(String amount, String username, String gender, String birthday,
+                                            String subject, String payType,
+                                            HttpServletRequest request) throws Exception {
         // 生成订单数据,返回订单ID号
-        int orderSignId = makeOrderHongYin(amount, username, gender, birthday);
+        OrderSign orderSign = orderSignService.makeOrderHongYin(amount, username, gender, birthday, payType);
 
         //生成IP
         String spbillCreateIp = getIP(request);
@@ -108,8 +85,7 @@ public class PayController {
         String MD5 = "MD5";
         //支付金额转化为分为单位 微信支付以分为单位
         String finalMoney = StringUtils.getMoney(amount);
-        int randomNum  = (int) (Math.random() * 1999+5000);
-        String outTradeNo = TimeUtils.getSysTime("yyyyMMddHHmmss") + randomNum;
+        String outTradeNo = orderSign.getOrder_id();
         //随机数
         String nonceStr= MD5Utils.getMessageDigest(String.valueOf(new Random().nextInt(10000)).getBytes());
         //拼接统一下单地址参数
@@ -142,6 +118,7 @@ public class PayController {
                 "<scene_info>"+ sceneInfo +"</scene_info>"+
                 "<spbill_create_ip>"+ spbillCreateIp +"</spbill_create_ip>"+
                 "</xml>";
+        logger.info("封装xml报文: {}", xml);
         String mwebUrl = "";
         Map<String, String> payMap = new HashMap<String, String>();
         try {
@@ -154,7 +131,7 @@ public class PayController {
                 mwebUrl = (String) map.get("mweb_url");
                 logger.info("mweb_url: {}", mwebUrl);
                 //支付完返回浏览器跳转的地址，回到结果页面 encode地址，再返回拼接地址
-                mwebUrl = mwebUrl + "&redirect_url=" + URLEncoder.encode(redirectUrl + "?orderId=" + orderSignId,"utf-8");
+                mwebUrl = mwebUrl + "&redirect_url=" + URLEncoder.encode(redirectUrl + "?orderId=" + orderSign.getId(),"utf-8");
             }else{
                 logger.info("统一支付接口获取预支付订单出错");
                 payMap.put("msg", "支付错误");
@@ -247,21 +224,28 @@ public class PayController {
             Map<String, String> notifyMap = WXPayUtil.xmlToMap(xml);
             if(notifyMap.get("return_code").equals("SUCCESS")){
                 if(notifyMap.get("result_code").equals("SUCCESS")){
+                    //告诉微信服务器收到信息了，不要在调用回调了，这里很重要回复微信服务器信息用流发送一个xml即可
+                    result = "<xml><return_code><![CDATA[SUCCESS]]></return_code></xml>";
+
+                    // 以下是业务处理，更新微信订单信息
                     //商户订单号
                     String outTradeNo = notifyMap.get("out_trade_no");
                     //微信支付订单号
                     String transactionId = notifyMap.get("transaction_id");
                     logger.info("outTradeNo : {}, transactionId : {}", outTradeNo, transactionId);
-
-                    // 以下是业务处理，更新微信订单信息
+                    //更新订单信息
                     OrderSign orderSign = orderSignService.findByOrderId(outTradeNo);
-                    orderSign.setTransaction_id(transactionId);
-                    orderSignService.update(orderSign);
-                    logger.info("order_id : {}, amount : {}, ifortuneId : {}",
+                    if(orderSign != null){
+                        orderSign.setTransaction_id(transactionId);
+                        orderSignService.update(orderSign);
+                        logger.info("order_id : {}, amount : {}, ifortuneId : {}",
                                 orderSign.getOrder_id(), orderSign.getAmount(), orderSign.getIfortune_id());
-
-                    //告诉微信服务器收到信息了，不要在调用回调了，这里很重要回复微信服务器信息用流发送一个xml即可
-                    result = "<xml><return_code><![CDATA[SUCCESS]]></return_code></xml>";
+                        //调用姓名测算
+                        HongYin hongYin = hongYinService.findByOrderSignId(orderSign.getId());
+                        logger.info("hongyin before: {}", hongYin);
+                        hongYin = hongYinService.checkHongYinResult(hongYin);
+                        logger.info("hongyin check: {}", hongYin);
+                    }
                 }
             }
             is.close();

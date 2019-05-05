@@ -8,6 +8,8 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,8 @@ import java.util.Map;
 
 @Service
 public class HongYinService {
+    private Logger logger = LoggerFactory.getLogger(HongYinService.class);
+
     @Value("${h_host}")
     private String host;
 
@@ -47,25 +51,32 @@ public class HongYinService {
         String ming = hongYin.getMing();
         String sex = hongYin.getSex();
         String birthday = hongYin.getBirthday();
+        logger.info("xing: {}, ming: {}, sex: {}, birthday: {}", xing, ming, sex, birthday);
 
+        //查询是否有已查过的姓名
         if(StringUtils.isBlank(hongYin.getZongge())){
-            //查询是否有已查过的姓名
             List<HongYin> hongYinList = findSelective(xing, ming, sex, birthday);
+            logger.info("hongYinList: {}", hongYinList);
             if(hongYinList.size() > 1){
                 for (HongYin _hongYin : hongYinList){
                     if(StringUtils.isNotBlank(_hongYin.getZongge())){
                         hongYin = copyToHongYin(_hongYin, hongYin);
                         hongYin.setCreate_time(new Date());
+                        hongYin.setSource("copy");
                         hongYinMapper.updateByPrimaryKey(hongYin);
                         break;
                     }
                 }
-            } else {
-                String result = cesuan(birthday, hongYin.getHour(), ming, hongYin.getMinute(), sex, xing);
-                hongYin = parseResult(result, hongYin);
-                hongYin.setCreate_time(new Date());
-                hongYinMapper.updateByPrimaryKey(hongYin);
             }
+        }
+
+        // 调用洪铟接口测算
+        if(StringUtils.isBlank(hongYin.getZongge())){
+            String result = cesuan(birthday, hongYin.getHour(), ming, hongYin.getMinute(), sex, xing);
+            hongYin = parseResult(result, hongYin);
+            hongYin.setCreate_time(new Date());
+            hongYin.setSource("weixin");
+            hongYinMapper.updateByPrimaryKey(hongYin);
         }
 
         return hongYin;

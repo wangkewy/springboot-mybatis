@@ -28,6 +28,7 @@
     <result column="chenggongyun" jdbcType="VARCHAR" property="chenggongyun" />
     <result column="shejiaoyun" jdbcType="VARCHAR" property="shejiaoyun" />
     <result column="create_time" jdbcType="TIMESTAMP" property="create_time" />
+    <result column="source" jdbcType="VARCHAR" property="source" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--
@@ -36,7 +37,8 @@
       This element was generated on Thu May 02 14:50:23 CST 2019.
     -->
     Id, birthday, hour, minute, xing, ming, sex, xings, mings, shengyun, tiange, renge, 
-    dige, waige, zongge, zonglun, pingfen, jichuyun, chenggongyun, shejiaoyun, create_time
+    dige, waige, zongge, zonglun, pingfen, jichuyun, chenggongyun, shejiaoyun, create_time,
+    source
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     <!--
@@ -70,7 +72,8 @@
       shengyun, tiange, renge, 
       dige, waige, zongge, 
       zonglun, pingfen, jichuyun, 
-      chenggongyun, shejiaoyun, create_time
+      chenggongyun, shejiaoyun, create_time,
+      source
       )
     values (#{id,jdbcType=INTEGER}, #{birthday,jdbcType=VARCHAR}, #{hour,jdbcType=VARCHAR}, 
       #{minute,jdbcType=VARCHAR}, #{xing,jdbcType=VARCHAR}, #{ming,jdbcType=VARCHAR}, 
@@ -78,7 +81,8 @@
       #{shengyun,jdbcType=VARCHAR}, #{tiange,jdbcType=VARCHAR}, #{renge,jdbcType=VARCHAR}, 
       #{dige,jdbcType=VARCHAR}, #{waige,jdbcType=VARCHAR}, #{zongge,jdbcType=VARCHAR}, 
       #{zonglun,jdbcType=VARCHAR}, #{pingfen,jdbcType=VARCHAR}, #{jichuyun,jdbcType=VARCHAR}, 
-      #{chenggongyun,jdbcType=VARCHAR}, #{shejiaoyun,jdbcType=VARCHAR}, #{create_time,jdbcType=TIMESTAMP}
+      #{chenggongyun,jdbcType=VARCHAR}, #{shejiaoyun,jdbcType=VARCHAR}, #{create_time,jdbcType=TIMESTAMP},
+      #{source,jdbcType=VARCHAR}
       )
   </insert>
   <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="cn.no7player.model.HongYin">
@@ -147,6 +151,9 @@
       <if test="create_time != null">
         create_time,
       </if>
+      <if test="source != null">
+        source,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -211,6 +218,9 @@
       </if>
       <if test="create_time != null">
         #{create_time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="source != null">
+        #{source,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -282,6 +292,9 @@
       <if test="create_time != null">
         create_time = #{create_time,jdbcType=TIMESTAMP},
       </if>
+      <if test="source != null">
+        source = #{source,jdbcType=VARCHAR},
+      </if>
     </set>
     where Id = #{id,jdbcType=INTEGER}
   </update>
@@ -311,7 +324,8 @@
       jichuyun = #{jichuyun,jdbcType=VARCHAR},
       chenggongyun = #{chenggongyun,jdbcType=VARCHAR},
       shejiaoyun = #{shejiaoyun,jdbcType=VARCHAR},
-      create_time = #{create_time,jdbcType=TIMESTAMP}
+      create_time = #{create_time,jdbcType=TIMESTAMP},
+      source = #{source,jdbcType=VARCHAR}
     where Id = #{id,jdbcType=INTEGER}
   </update>
 
